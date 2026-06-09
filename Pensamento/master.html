@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O inacreditavelmente longo nome da masmorra do necromante que ninguem consegue pronunciar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --stone: #1a1612;
+  --stone-mid: #252019;
+  --stone-light: #3d3026;
+  --parchment: #c9a96e;
+  --parch-light: #e8c98a;
+  --blood: #8b1a1a;
+  --blood-bright: #c0392b;
+  --gold: #d4a017;
+  --gold-light: #f0c040;
+  --mist: #a89070;
+  --mist-dim: #6b5c47;
+  --green: #4caf50;
+  --blue: #4fc3f7;
+  --purple: #b86bff;
+  --ft: 'Cinzel', serif;
+  --fb: 'IM Fell English', serif;
+}
+
+/* Força o HTML e o Body a ocuparem 100% da janela sem rolagens fantasmas */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--stone);
+  font-family: var(--fb);
+}
+
+/* O container principal agora expande para a tela inteira */
+#app {
+  background: var(--stone);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* HEADER */
+.header {
+  background: var(--stone-mid);
+  border-bottom: 2px solid var(--parchment);
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0; /* Impede o header de encolher */
+}
+.htitle { font-family: var(--ft); font-size: clamp(14px, 3.4vw, 20px); color: var(--gold-light); letter-spacing: 1px; line-height: 1.2; max-width: 920px; }
+.hsub { font-size: clamp(10px, 2vw, 12px); color: var(--mist); letter-spacing: 3px; font-family: var(--ft); margin-top: 1px; }
+.h-skull { font-family: var(--ft); font-size: 16px; color: var(--mist); letter-spacing: 1px; flex-shrink: 0; }
+
+/* TELAS PRINCIPAIS */
+#setup-screen {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+#game-screen {
+  display: none;
+  flex: 1;
+  height: 100%;
+  min-height: 0; /* Essencial para sub-elementos scrollarem corretamente */
+}
+
+/* LAYOUT RESPONSIVO DINÂMICO */
+.layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Área de conteúdo principal */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+/* Painéis de abas */
+.panel {
+  display: none;
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto; /* Scroll individual por aba */
+  min-height: 0;
+}
+.panel.active { display: flex; flex-direction: column; }
+#tab-monsters.panel.active { display: block; }
+
+/* NAVEGAÇÃO MOBILE (TABS) */
+.tabs {
+  display: flex;
+  background: var(--stone-mid);
+  border-bottom: 1px solid var(--stone-light);
+  flex-shrink: 0;
+}
+.tab {
+  flex: 1;
+  padding: 14px 2px;
+  font-family: var(--ft);
+  font-size: clamp(11px, 2.5vw, 13px);
+  letter-spacing: .5px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--mist);
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  text-transform: uppercase;
+}
+.tab:hover { color: var(--parchment); }
+.tab.active { color: var(--gold-light); border-bottom: 2px solid var(--gold); background: rgba(212,160,23,.05); }
+
+/* SIDEBAR DESKTOP/TABLET HORIZONTAL */
+.sidebar { display: none; }
+@media(min-width: 860px) {
+  .layout { flex-direction: row; }
+  
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    min-width: 240px;
+    background: var(--stone-mid);
+    border-right: 1px solid var(--stone-light);
+    padding: 20px 14px;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  
+  /* Oculta as abas superiores no desktop */
+  .tabs { display: none !important; }
+  
+  /* O comportamento das abas agora é idêntico em ambas as resoluções */
+  .panel { display: none; }
+  .panel.active { display: flex; flex-direction: column; }
+  #tab-monsters.panel.active { display: block; }
+  
+  .sidebar-nav-btn {
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    font-family: var(--ft);
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--mist);
+    cursor: pointer;
+    border-radius: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    transition: all .15s;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-nav-btn:hover { color: var(--parchment); background: rgba(255,255,255,.03); }
+  .sidebar-nav-btn.active { color: var(--gold-light); border-left-color: var(--gold); background: rgba(212,160,23,.07); }
+  
+  .sidebar-section {
+    font-family: var(--ft);
+    font-size: 10px;
+    color: var(--mist-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 16px 0 6px 12px;
+  }
+}
+
+/* ÁREAS DE SCROLL INTERNO (Evita que a tela quebre) */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 4px;
+}
+.scroll-area::-webkit-scrollbar { width: 4px; }
+.scroll-area::-webkit-scrollbar-track { background: var(--stone); }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--stone-light); border-radius: 2px; }
+
+/* COMPONENTES DE CONFIGURAÇÃO (SETUP) */
+.mode-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 20px; border: 1px solid var(--stone-light); border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+.mode-btn { padding: 14px 8px; background: var(--stone-mid); border: none; font-family: var(--ft); font-size: 11px; letter-spacing: 1px; color: var(--mist); cursor: pointer; text-align: center; text-transform: uppercase; transition: all .2s; }
+.mode-btn:first-child { border-right: 1px solid var(--stone-light); }
+.mode-btn.active { background: rgba(212,160,23,.12); color: var(--gold-light); }
+.mode-title { display: block; font-size: 13px; margin-bottom: 2px; font-weight: 600; }
+.mode-sub { display: block; font-size: 10px; opacity: .6; text-transform: none; }
+.setup-label { font-family: var(--ft); font-size: 12px; color: var(--parchment); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.player-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; flex-shrink: 0; }
+@media(min-width:480px){ .player-grid { grid-template-columns: repeat(6, 1fr); } }
+
+.player-btn { padding: 12px 4px; border: 1px solid var(--stone-light); border-radius: 3px; background: var(--stone-mid); color: var(--mist); font-family: var(--ft); font-size: 14px; cursor: pointer; transition: all .2s; }
+.player-btn span { display: block; font-size: 9px; opacity: .6; margin-top: 2px; text-transform: uppercase; }
+.player-btn:hover, .player-btn.active { border-color: var(--gold); color: var(--gold-light); background: rgba(212,160,23,.1); }
+
+.setup-preview { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 3px; padding: 14px; margin-bottom: 20px; }
+.preview-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; color: var(--mist); border-bottom: 1px solid rgba(255,255,255,.04); }
+.preview-row:last-child { border-bottom: none; }
+.preview-val { font-family: var(--ft); font-size: 13px; color: var(--parch-light); }
+
+.start-btn { width: 100%; padding: 16px; background: var(--blood); border: 1px solid var(--blood-bright); border-radius: 3px; color: var(--parch-light); font-family: var(--ft); font-size: 14px; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; transition: all .2s; margin-top: auto; }
+.start-btn:hover { background: var(--blood-bright); }
+
+/* STATUS GRID NO GAME */
+.status-bar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; flex-shrink: 0; }
+.stat-chip { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 3px; padding: 10px 6px; text-align: center; }
+.chip-label { font-family: var(--ft); font-size: 9px; color: var(--mist-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.chip-val { font-family: var(--ft); font-size: clamp(14px, 3.5vw, 20px); font-weight: 600; }
+.chip-val.danger { color: var(--blood-bright); }
+.chip-val.warn { color: var(--gold-light); }
+.chip-val.safe { color: var(--green); }
+
+.threat-wrap { margin-bottom: 14px; flex-shrink: 0; }
+.threat-label { font-family: var(--ft); font-size: 10px; color: var(--mist); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.threat-bar { height: 8px; background: var(--stone-light); border-radius: 4px; overflow: hidden; }
+.threat-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.wave-badge { background: rgba(212,160,23,.05); border: 1px solid var(--gold); border-radius: 3px; padding: 8px; font-family: var(--ft); font-size: 11px; color: var(--gold-light); text-align: center; margin-bottom: 14px; letter-spacing: 1px; flex-shrink: 0; }
+
+.action-btn { width: 100%; padding: 14px; border-radius: 3px; font-family: var(--ft); font-size: 13px; letter-spacing: 1.5px; cursor: pointer; text-transform: uppercase; transition: all .2s; margin-bottom: 12px; border: 1px solid; flex-shrink: 0; }
+.action-btn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.35); }
+.btn-red { background: var(--blood); border-color: var(--blood-bright); color: var(--parch-light); }
+.btn-red:hover { background: var(--blood-bright); }
+.btn-red:disabled:hover { background: var(--blood); }
+.btn-gray { background: transparent; border-color: var(--mist-dim); color: var(--mist); }
+
+.section-title { font-family: var(--ft); font-size: 14px; color: var(--parchment); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--stone-light); flex-shrink: 0; }
+
+/* MONSTER CARDS GERAL */
+.monster-card { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 3px; padding: 14px; margin-bottom: 10px; }
+.monster-card.boss-card { border-color: var(--blood-bright); background: linear-gradient(to bottom, var(--stone-mid), #2c1a1a); }
+.card-image { width: 100%; aspect-ratio: 16 / 6; object-fit: contain; object-position: center; border: 1px solid var(--stone-light); border-radius: 3px; margin: 10px 0 12px; background: var(--stone); display: block; }
+.monster-image { max-height: 240px; }
+.room-image { max-height: 260px; }
+.monster-name { font-family: var(--ft); font-size: 18px; color: var(--parch-light); margin-bottom: 2px; }
+.monster-type { font-size: 12px; color: var(--mist); font-style: italic; margin-bottom: 10px; }
+
+.mstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.sbox { background: var(--stone); border: 1px solid var(--stone-light); border-radius: 3px; padding: 8px; text-align: center; }
+.slabel { font-size: 9px; color: var(--mist-dim); letter-spacing: 1px; font-family: var(--ft); text-transform: uppercase; margin-bottom: 4px; }
+.sval { font-size: 22px; font-family: var(--ft); font-weight: 700; }
+.sval.hp { color: var(--green); }
+.sval.atk { color: var(--blood-bright); }
+.sval.def { color: var(--blue); }
+.atk-type { font-size: 9px; color: var(--mist); font-family: var(--ft); text-transform: uppercase; margin-top: 2px; }
+.mability { font-size: 13px; color: var(--mist); font-style: italic; line-height: 1.5; padding: 8px; background: rgba(0,0,0,0.2); border-left: 3px solid var(--parchment); border-radius: 0 4px 4px 0; }
+
+.tier-pill { display: inline-block; font-size: 9px; font-family: var(--ft); letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; margin-bottom: 8px; }
+.t-minion { background: rgba(76,175,80,.12); color: var(--green); border: 1px solid var(--green); }
+.t-elite { background: rgba(212,160,23,.12); color: var(--gold-light); border: 1px solid var(--gold); }
+.t-boss { background: rgba(192,57,43,.15); color: var(--blood-bright); border: 1px solid var(--blood-bright); }
+.monster-num { font-size: 10px; color: var(--mist-dim); font-family: var(--ft); letter-spacing: 1px; margin-bottom: 4px; }
+
+/* EFFECT CARDS */
+.effect-card { background: var(--stone-mid); border-radius: 3px; padding: 14px; margin-bottom: 12px; border-left: 4px solid var(--mist); flex-shrink: 0; }
+.effect-card.positive { border-left-color: var(--green); }
+.effect-card.negative { border-left-color: var(--blood-bright); }
+.effect-card.neutral { border-left-color: var(--gold); }
+.ename { font-family: var(--ft); font-size: 16px; color: var(--parch-light); margin-bottom: 4px; }
+.ebadge { font-size: 9px; font-family: var(--ft); letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; margin-bottom: 8px; display: inline-block; }
+.ebadge.positive { background: rgba(76,175,80,.12); color: var(--green); border: 1px solid var(--green); }
+.ebadge.negative { background: rgba(192,57,43,.15); color: var(--blood-bright); border: 1px solid var(--blood-bright); }
+.ebadge.neutral { background: rgba(212,160,23,.12); color: var(--gold-light); border: 1px solid var(--gold); }
+.edesc { font-size: 13px; color: var(--mist); font-style: italic; line-height: 1.5; margin-bottom: 8px; }
+.erule { font-size: 13px; color: var(--parchment); padding: 8px; background: rgba(0,0,0,.2); border-radius: 2px; line-height: 1.5; }
+
+/* CARD DRAW RESULT */
+.card-draw-result { background: var(--stone-mid); border: 2px solid var(--gold); border-radius: 4px; padding: 24px; text-align: center; margin-bottom: 12px; }
+.draw-number { font-family: var(--ft); font-size: 64px; line-height: 1; color: var(--gold-light); text-shadow: 0 0 20px rgba(240,192,64,.3); }
+.draw-label { font-family: var(--ft); font-size: 11px; letter-spacing: 2px; color: var(--mist); text-transform: uppercase; margin-top: 6px; }
+.draw-tier-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.draw-tier-pill { font-family: var(--ft); font-size: 10px; letter-spacing: 1px; padding: 3px 12px; border-radius: 20px; text-transform: uppercase; }
+.dtp-minion { background: rgba(76,175,80,.12); color: var(--green); border: 1px solid var(--green); }
+.dtp-elite { background: rgba(212,160,23,.12); color: var(--gold-light); border: 1px solid var(--gold); }
+.dtp-boss { background: rgba(192,57,43,.15); color: var(--blood-bright); border: 1px solid var(--blood-bright); }
+.draw-detail { font-size: 14px; color: var(--parchment); font-style: italic; margin-top: 12px; line-height: 1.6; }
+.card-note { background: rgba(0,0,0,.2); border-left: 2px solid var(--parchment); padding: 8px 10px; font-size: 12px; color: var(--mist); font-style: italic; margin-top: 10px; text-align: left; }
+
+.physical-card { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 3px; padding: 12px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.physical-card.dead { opacity: .45; filter: grayscale(50%); }
+.physical-card-name { font-family: var(--ft); font-size: 15px; color: var(--parch-light); margin-top: 5px; }
+.physical-card-note { font-size: 12px; color: var(--mist); font-style: italic; margin-top: 4px; }
+
+/* PARTY & CHRONICLE */
+.lives-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; flex-shrink: 0; }
+@media(min-width:480px){ .lives-grid { grid-template-columns: repeat(6, 1fr); } }
+.life-btn { padding: 12px 4px; border: 1px solid var(--green); border-radius: 3px; background: rgba(76,175,80,.1); color: var(--green); font-family: var(--ft); font-size: 11px; cursor: pointer; text-align: center; transition: all .2s; line-height: 1.5; }
+.life-btn.dead { border-color: var(--blood-bright); background: rgba(192,57,43,.1); color: var(--blood-bright); }
+
+.log-item { font-size: 13px; color: var(--mist); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-style: italic; }
+.log-time { color: var(--gold); font-family: var(--ft); font-size: 10px; margin-right: 4px; }
+
+.divider { height: 1px; background: var(--stone-light); margin: 16px 0; flex-shrink: 0; }
+.sb-divider { height: 1px; background: var(--stone-light); margin: 14px 0; }
+.empty-state { text-align: center; padding: 40px 16px; color: var(--mist-dim); font-style: italic; font-size: 14px; opacity: .7; }
+
+.shake { animation: shake .4s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-4px) rotate(-0.5deg);} 40%{transform:translateX(4px) rotate(0.5deg);} 60%{transform:translateX(-3px);} 80%{transform:translateX(3px);} }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="htitle">O inacreditavelmente longo nome da masmorra do necromante que ninguem consegue pronunciar</div>
+      <div class="hsub">Mestre Virtual - V6</div>
+    </div>
+    <div class="h-skull">[ DM ]</div>
+  </div>
+
+  <div id="setup-screen">
+    <div style="padding:10px 0; text-align:center;">
+      <div style="font-family:var(--ft); font-size:15px; color:var(--gold-light); letter-spacing:2px; margin-bottom:4px;">Nova Sessão</div>
+      <div style="font-size:13px; color:var(--mist); font-style:italic;">Configure a aventura antes de começar</div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="setup-label">Modo de Monstros</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-btn-app" onclick="setMode('app',this)">
+        <span class="mode-title">App Sorteia</span>
+        <span class="mode-sub">Stats completos aqui</span>
+      </button>
+      <button class="mode-btn" id="mode-btn-cards" onclick="setMode('cards',this)">
+        <span class="mode-title">Baralho Físico</span>
+        <span class="mode-sub">App diz quantas tirar</span>
+      </button>
+    </div>
+
+    <div class="setup-label">Número de Jogadores</div>
+    <div class="player-grid">
+      <button class="player-btn" onclick="selectPlayers(1,this)">1<span>Solo</span></button>
+      <button class="player-btn" onclick="selectPlayers(2,this)">2<span>Dupla</span></button>
+      <button class="player-btn active" onclick="selectPlayers(3,this)">3<span>Trio</span></button>
+      <button class="player-btn" onclick="selectPlayers(4,this)">4<span>Grupo</span></button>
+      <button class="player-btn" onclick="selectPlayers(5,this)">5<span>Bando</span></button>
+      <button class="player-btn" onclick="selectPlayers(6,this)">6<span>Legião</span></button>
+    </div>
+
+    <div class="setup-label">Pré-visualização</div>
+    <div class="setup-preview" id="preview-box"></div>
+    
+    <button class="start-btn" onclick="startGame()">Adentrar a Masmorra</button>
+    <p class="hint">A dificuldade escala com as salas e os heróis vivos</p>
+  </div>
+
+  <div id="game-screen">
+    <div class="layout">
+      
+      <div class="sidebar">
+        <div style="font-family:var(--ft); font-size:14px; color:var(--gold-light); letter-spacing:1px; margin-bottom:2px;">Menu</div>
+        <div class="sb-divider"></div>
+        <div class="sidebar-section">Navegação</div>
+        <button class="sidebar-nav-btn active" id="sb-nav-monsters" onclick="deskTab('monsters',this)">Sala e Monstros</button>
+        <button class="sidebar-nav-btn" id="sb-nav-party" onclick="deskTab('party',this)">Party</button>
+        <button class="sidebar-nav-btn" id="sb-nav-log" onclick="deskTab('log',this)">Log</button>
+        <div class="sb-divider"></div>
+        <div class="sidebar-section">Status Atual</div>
+        <div id="sb-status"></div>
+        <div class="sb-divider"></div>
+        <button class="sidebar-nav-btn" onclick="backToSetup()" style="color:var(--mist-dim); font-size:11px;">← Sair da Sessão</button>
+      </div>
+
+      <div class="main-content">
+        <div class="tabs">
+          <button class="tab active" id="m-tab-monsters" onclick="switchTab('monsters')">Sala</button>
+          <button class="tab" id="m-tab-party" onclick="switchTab('party')">Party</button>
+          <button class="tab" id="m-tab-log" onclick="switchTab('log')">Log</button>
+        </div>
+
+        <div id="tab-monsters" class="panel active desk-active">
+          <div class="status-bar" id="status-bar"></div>
+          <div class="threat-wrap">
+            <div class="threat-label"><span>Nível de Ameaça</span><span id="threat-pct">0%</span></div>
+            <div class="threat-bar"><div class="threat-fill" id="threat-fill" style="width:0%; background:var(--green);"></div></div>
+          </div>
+          <div id="wave-info" class="wave-badge"></div>
+          <button class="action-btn btn-red" id="reveal-room-btn" onclick="rollRoom()">Revelar Nova Sala</button>
+          <div id="room-area"></div>
+          <div id="monster-area">
+            <div class="empty-state">Pressione Revelar Nova Sala para começar...</div>
+          </div>
+        </div>
+
+        <div id="tab-party" class="panel">
+          <div class="section-title">Estado da Party</div>
+          <div style="font-size:12px; color:var(--mist); font-style:italic; margin-bottom:12px;">Marque os heróis que caíram. Isso ajusta a dificuldade dinamicamente.</div>
+          <div class="lives-grid" id="lives-grid"></div>
+          <div class="divider"></div>
+          <div class="setup-label">Impacto Atual do Grupo</div>
+          <div class="setup-preview" id="party-impact"></div>
+          <div class="divider"></div>
+          <button class="action-btn btn-gray" onclick="backToSetup()" style="font-size:11px;">Finalizar Sessão Atual</button>
+        </div>
+
+        <div id="tab-log" class="panel">
+          <div class="section-title">Crônica da Aventura</div>
+          <div id="log-list" class="scroll-area">
+            <div class="empty-state">Aventura não iniciada...</div>
+          </div>
+          <div class="divider"></div>
+          <button class="action-btn btn-gray" onclick="clearLog()" style="font-size:11px; margin-bottom:0;">Limpar Histórico</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+<script>
+const MONSTERS={
+  minion:[
+    {name:'Fantasma',type:'Imune a físico; vulnerável a mágico/sagrado.',tier:'minion',hp:12,atk:6,atkType:'mágico',defF:0,defM:3,ability:'Toque Incorpóreo: ignora bloqueios físicos e atravessa defesas comuns.'},
+    {name:'Mímico',type:'Sem fraqueza clara.',tier:'minion',hp:20,atk:6,atkType:'físico',defF:3,defM:2,ability:'Mordida Surpresa: no primeiro ataque do combate causa +2 dano.'},
+    {name:'Slime',type:'Resistente a físico; vulnerável a mágico.',tier:'minion',hp:18,atk:4,atkType:'físico',defF:4,defM:1,ability:'Divisão Viscosa: uma vez por combate reduz 2 de dano físico recebido.'},
+    {name:'Zumbi',type:'Vulnerável a físico; resistente a mágico.',tier:'minion',hp:14,atk:5,atkType:'físico',defF:1,defM:3,ability:'Putrefação: alvo atingido recebe -1 ataque na próxima rodada.'},
+    {name:'Aranha das Dunas',type:'Vulnerável a mágico ou fogo, caso exista no jogo.',tier:'minion',hp:16,atk:5,atkType:'físico/veneno',defF:2,defM:2,ability:'Teia Arenosa: reduz o ataque de um alvo em -2 por 1 rodada.'},
+    {name:'Camaleão Vil',type:'Pode copiar uma resistência por 1 rodada.',tier:'minion',hp:16,atk:6,atkType:'físico',defF:2,defM:2,ability:'Camuflagem: uma vez por combate evita o primeiro dano recebido.'},
+    {name:'Escorpião Gigante',type:'Resistente a físico; vulnerável a mágico.',tier:'minion',hp:18,atk:6,atkType:'físico',defF:3,defM:1,ability:'Ferrão: veneno causa +2 de dano na rodada seguinte.'},
+    {name:'Lobo Selvagem',type:'Sem resistência.',tier:'minion',hp:12,atk:5,atkType:'físico',defF:1,defM:1,ability:'Caçada em Grupo: ganha +1 ataque para cada outra fera em campo.'},
+  ],
+  elite:[
+    {name:'Ciclope',type:'Vulnerável a mágico.',tier:'elite',hp:24,atk:8,atkType:'físico',defF:3,defM:1,ability:'Golpe Esmagador: +2 dano contra alvo com Defesa Física menor que 3.'},
+    {name:'Cobra Demônio',type:'Resistente a mágico; vulnerável a físico.',tier:'elite',hp:20,atk:7,atkType:'mágico',defF:2,defM:3,ability:'Veneno Demoníaco: alvo perde 1 PV por rodada por 2 rodadas.'},
+    {name:'Minotauro',type:'Resistente a físico leve; vulnerável a mágico.',tier:'elite',hp:26,atk:7,atkType:'físico',defF:4,defM:1,ability:'Investida: no primeiro ataque do combate causa +2 dano.'},
+    {name:'Golem de Arenito',type:'Resistente a físico; vulnerável a mágico.',tier:'elite',hp:30,atk:7,atkType:'físico',defF:5,defM:1,ability:'Couraça de Pedra: ignora os primeiros 2 pontos de dano físico de cada ataque.'},
+    {name:'Caravela Sombria',type:'Resistente a mágico; vulnerável a físico.',tier:'elite',hp:22,atk:7,atkType:'mágico',defF:2,defM:4,ability:'Choque Sombrio: causa +2 dano se a sala tiver tema aquático ou sombrio.'},
+    {name:'Serpente-Tubarão',type:'Sem resistência forte.',tier:'elite',hp:26,atk:8,atkType:'físico',defF:3,defM:2,ability:'Mordida Espiral: se causar dano, o alvo recebe -1 Defesa Física até o próximo turno.'},
+    {name:'Morsa Abissal',type:'Resistente a físico.',tier:'elite',hp:28,atk:7,atkType:'físico',defF:4,defM:2,ability:'Peso Esmagador: alvos com Defesa Física 1 ou menor recebem +1 dano.'},
+  ],
+  boss:[
+    {name:'Armadura Invocada',type:'Resistente a físico; vulnerável a mágico.',tier:'boss',hp:42,atk:9,atkType:'físico',defF:6,defM:2,ability:'Barreira Animada: ganha +3 Defesa Física e +3 Defesa Mágica por 1 rodada. Recarga 2. Passiva: dano mágico reduz 1 Defesa Física até o fim da luta.'},
+    {name:'Golgotharionexis',type:'Resistente a mágico; vulnerável a físico/sagrado.',tier:'boss',hp:36,atk:8,atkType:'mágico',defF:2,defM:5,ability:'Invocar Morto: invoca um zumbi com metade do PV. Recarga 2. Passiva: enquanto houver zumbi em campo, recebe -2 de dano.'},
+    {name:'Cão do Inferno',type:'Resistente a mágico/sombrio; vulnerável a físico/sagrado.',tier:'boss',hp:38,atk:8,atkType:'físico/mágico',defF:3,defM:3,ability:'Uivo Infernal: causa 5 de dano mágico em todos os jogadores. Recarga 2.'},
+  ]
+};
+
+const ROOMS=[
+  {type:'positive',tag:'BUFF',name:'Pulso de Cura',desc:'Uma magia ancestral pulsa pela sala a cada rodada.',rule:'Toda rodada, todos curam +5 de vida.'},
+  {type:'positive',tag:'BUFF MÁGICO',name:'Benção Arcana',desc:'Uma antiga sala de pesquisa cheia de magia acumulada.',rule:'Atacantes mágicos ganham +3 de dano.'},
+  {type:'positive',tag:'BUFF DEFENSIVO',name:'Bastião',desc:'Inspirados por um antigo guerreiro, todos ganham resistência.',rule:'Todos os heróis ganham +2 em cada defesa.'},
+  {type:'negative',tag:'DEBUFF',name:'Miasma Sombrio',desc:'Uma névoa densa cobre a sala e envenena quem respira.',rule:'Todos aqueles que não forem mortos-vivos ficam envenenados.'},
+  {type:'negative',tag:'DEBUFF DE COMBATE',name:'Fúria da Horda',desc:'Monstros ficam mais fortes quando lutam unidos.',rule:'Para cada inimigo em campo, os monstros ganham +2 de ataque.'},
+  {type:'negative',tag:'PERIGO',name:'Hora da Morte',desc:'A sala exige mortes constantes para poupar vidas.',rule:'A cada 3 rodadas sem eliminação, o herói com menor vida morre.'},
+  {type:'negative',tag:'DEBUFF DE CURA',name:'Feridas Dolorosas',desc:'As feridas queimam em chamas negras.',rule:'Nenhum tipo de cura funciona nessa sala.'},
+  {type:'negative',tag:'DEBUFF GERAL',name:'Maldição da Fraqueza',desc:'Todos os vivos se sentem mais fracos dentro da sala.',rule:'Todos os vivos, heróis e monstros, recebem -2 de ataque.'},
+  {type:'neutral',tag:'SALA CAÓTICA',name:'Quarto da Trapaça',desc:'Um quarto de jogos cheio de trapaças e truques.',rule:'Tipos de atributos são trocados e as defesas são invertidas.'},
+  {type:'neutral',tag:'BUFF MISTO',name:'Cântico dos Bárbaros',desc:'Uma música ancestral dos bárbaros deixa todos mais fortes, porém mais frágeis.',rule:'Todos ganham +2 de ataque e -2 em cada defesa.'},
+  {type:'neutral',tag:'SALA DE RECOMPENSA',name:'Altar de Sacrifício',desc:'Eliminações são recompensadas por um deus antigo.',rule:'Toda vez que alguém morrer, o eliminador ganha +2 de ataque.'},
+];
+
+const IMAGE_BY_NAME={
+  'Fantasma':'assets/criaturas/fantasma.png',
+  'Mímico':'assets/criaturas/mimico.png',
+  'Slime':'assets/criaturas/slime.png',
+  'Zumbi':'assets/criaturas/zumbi.png',
+  'Aranha das Dunas':'assets/criaturas/aranha-das-dunas.png',
+  'Camaleão Vil':'assets/criaturas/camaleao-vil.png',
+  'Escorpião Gigante':'assets/criaturas/escorpiao-gigante.png',
+  'Lobo Selvagem':'assets/criaturas/lobo-selvagem.png',
+  'Ciclope':'assets/criaturas/ciclope.png',
+  'Cobra Demônio':'assets/criaturas/cobra-demonio.png',
+  'Minotauro':'assets/criaturas/minotauro.png',
+  'Golem de Arenito':'assets/criaturas/golem-de-arenito.png',
+  'Caravela Sombria':'assets/criaturas/caravela-sombria.png',
+  'Serpente-Tubarão':'assets/criaturas/serpente-tubarao.png',
+  'Morsa Abissal':'assets/criaturas/morsa-absal.png',
+  'Armadura Invocada':'assets/bosses/armadura-invocada.png',
+  'Golgotharionexis':'assets/bosses/golgotharionexis.png',
+  'Cão do Inferno':'assets/bosses/cao-do-inferno.png',
+  'Pulso de Cura':'assets/salas/pulso-de-cura.png',
+  'Benção Arcana':'assets/salas/bençao-arcana.png',
+  'Bastião':'assets/salas/bastiao.png',
+  'Miasma Sombrio':'assets/salas/misma-sombrio.png',
+  'Fúria da Horda':'assets/salas/furia-da-horda.png',
+  'Hora da Morte':'assets/salas/hora-da-morte.png',
+  'Feridas Dolorosas':'assets/salas/feridas-dolorosas.png',
+  'Maldição da Fraqueza':'assets/salas/maldiçao-da-fraqueza.png',
+  'Quarto da Trapaça':'assets/salas/quarto-da-trapaça.png',
+  'Cântico dos Bárbaros':'assets/salas/cantico-dos-barbaros.png',
+  'Altar de Sacrifício':'assets/salas/altar-de-sacrficio.png',
+};
+
+function cardImage(entity,cls){
+  const src=IMAGE_BY_NAME[entity.name];
+  return src?`<img class="card-image ${cls}" src="${src}" alt="${entity.name}" loading="lazy" onerror="this.style.display='none'">`:'';
+}
+
+function getScaleParams(players,alive,rooms,threat){
+  const baseQty=[1,1,2,2,3,3][players-1] || 2;
+  const maxQty=[2,2,3,4,5,6][players-1] || 4;
+  const aliveRatio=alive/players;
+  const adjMax=Math.max(baseQty,Math.round(maxQty*(0.5+aliveRatio*0.5)));
+  const statMult=[0.8,0.9,1.0,1.1,1.25,1.4][players-1] || 1.0;
+  const bossCh=rooms>=3?Math.min(8+rooms*3+threat/6,50):0;
+  let minionCh;
+  if(threat<20)minionCh=85;
+  else if(threat<40)minionCh=65;
+  else if(threat<60)minionCh=40;
+  else if(threat<80)minionCh=20;
+  else minionCh=10;
+  return{baseQty,adjMax,statMult,bossCh,minionCh};
+}
+function scaleStat(b,m){return Math.round(b*m);}
+
+let state={mode:'app',players:3,playersAlive:3,playerStatus:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[]};
+function ri(a){return a[Math.floor(Math.random()*a.length)];}
+function rn(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function threatColor(t){return t<33?'var(--green)':t<66?'var(--gold-light)':'var(--blood-bright)';}
+function allCurrentMonstersDead(){return state.currentMonsters.length>0 && state.currentMonsters.every(m=>m.dead);}
+function hasLivingMonsters(){return state.currentMonsters.some(m=>!m.dead);}
+
+function updateRevealButton(){
+  const btn=document.getElementById('reveal-room-btn');
+  if(!btn)return;
+  const locked=hasLivingMonsters();
+  btn.disabled=locked;
+  btn.textContent=locked?'Derrote todos os monstros':'Revelar Nova Sala';
+}
+
+function setMode(m,btn){
+  state.mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updatePreview();
+}
+
+function selectPlayers(n,btn){
+  state.players=n;
+  document.querySelectorAll('.player-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updatePreview();
+}
+
+function updatePreview(){
+  const p=state.players;
+  state.playersAlive=state.players;
+  state.playerStatus=Array(p).fill(true);
+  
+  const {baseQty, adjMax, statMult} = getScaleParams(p, p, state.roomsCleared, state.threatLevel);
+  const modeLabel=state.mode==='app'?'App mostra stats completos':'App diz quantas cartas tirar';
+  
+  const previewBox = document.getElementById('preview-box');
+  if (previewBox) {
+    previewBox.innerHTML=`
+      <div class="preview-row"><span>Modo</span><span class="preview-val">${modeLabel}</span></div>
+      <div class="preview-row"><span>Monstros por sala</span><span class="preview-val">${baseQty}-${adjMax}</span></div>
+      <div class="preview-row"><span>Forca dos monstros</span><span class="preview-val">${Math.round(statMult*100)}%</span></div>
+      <div class="preview-row"><span>Chance de Boss</span><span class="preview-val">Desbloqueado na sala 4</span></div>
+      <div class="preview-row"><span>Loot</span><span class="preview-val">Registrar após limpar a sala</span></div>
+    `;
+  }
+}
+
+function startGame(){
+  state.playersAlive=state.players;
+  state.playerStatus=Array(state.players).fill(true);
+  state.roomsCleared=0;state.threatLevel=0;state.totalGold=0;state.log=[];state.lastMonsterTier='minion';
+  state.currentMonsters=[];
+  
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  
+  document.getElementById('monster-area').innerHTML='<div class="empty-state">Pressione Revelar Nova Sala para comecar...</div>';
+  document.getElementById('room-area').innerHTML='';
+  document.getElementById('log-list').innerHTML='<div class="empty-state">Aventura iniciada. Boa sorte...</div>';
+  
+  document.querySelectorAll('.panel').forEach(p => p.style.display = '');
+  switchTab('monsters');
+  
+  renderStatus();renderLives();renderPartyImpact();renderSidebarStatus();
+  updateRevealButton();
+}
+
+function backToSetup(){
+  document.getElementById('setup-screen').style.display='block';
+  document.getElementById('game-screen').style.display='none';
+  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];
+  updatePreview();
+}
+
+function renderStatus(){
+  const t=state.threatLevel;
+  document.getElementById('status-bar').innerHTML=`
+    <div class="stat-chip"><div class="chip-label">Herois Vivos</div><div class="chip-val ${state.playersAlive<=1?'danger':state.playersAlive<state.players?'warn':'safe'}">${state.playersAlive}/${state.players}</div></div>
+    <div class="stat-chip"><div class="chip-label">Salas Limpas</div><div class="chip-val warn">${state.roomsCleared}</div></div>
+    <div class="stat-chip"><div class="chip-label">Status</div><div class="chip-val safe" style="font-size:clamp(11px,3vw,14px);">Ativo</div></div>
+  `;
+  document.getElementById('threat-fill').style.width=t+'%';
+  document.getElementById('threat-fill').style.background=threatColor(t);
+  document.getElementById('threat-pct').textContent=Math.round(t)+'%';
+  const labels=['Entrada da Masmorra','Profundezas Rasas','Tuneis Sombrios','Coracao das Trevas','ABISMO FINAL'];
+  const li=t<10?0:t<33?1:t<55?2:t<78?3:4;
+  document.getElementById('wave-info').textContent=labels[li]+' - Sala '+(state.roomsCleared+1);
+}
+
+function renderSidebarStatus(){
+  const el=document.getElementById('sb-status');if(!el)return;
+  const t=state.threatLevel;
+  el.innerHTML=`
+    <div style="font-size:11px;color:var(--mist);margin-bottom:4px;font-family:var(--ft);">Herois: <span style="color:${state.playersAlive<=1?'var(--blood-bright)':state.playersAlive<state.players?'var(--gold-light)':'var(--green)'}">${state.playersAlive}/${state.players}</span></div>
+    <div style="font-size:11px;color:var(--mist);margin-bottom:4px;font-family:var(--ft);">Salas: <span style="color:var(--gold-light)">${state.roomsCleared}</span></div>
+    <div style="font-size:9px;color:var(--mist-dim);font-family:var(--ft);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Ameaca</div>
+    <div class="threat-bar"><div class="threat-fill" style="width:${t}%;background:${threatColor(t)};"></div></div>
+    <div style="font-size:10px;color:${threatColor(t)};font-family:var(--ft);margin-top:3px;">${Math.round(t)}%</div>
+  `;
+}
+
+function rollRoom(){
+  if(hasLivingMonsters()){
+    addLog('Ainda existem monstros vivos. Termine o combate antes de revelar outra sala.');
+    updateRevealButton();
+    return;
+  }
+  if(allCurrentMonstersDead()){
+    finishCurrentRoom(true);
+  }
+
+  const{adjMax,baseQty,statMult,bossCh,minionCh}=getScaleParams(state.players,state.playersAlive,state.roomsCleared,state.threatLevel);
+  const room=ri(ROOMS);
+  const roomTag=room.tag || {positive:'Benção',negative:'Maldição',neutral:'Neutro'}[room.type];
+  document.getElementById('room-area').innerHTML=`
+    <div class="effect-card ${room.type}">
+      <div class="ebadge ${room.type}">${roomTag}</div>
+      <div class="ename">${room.name}</div>
+      ${cardImage(room,'room-image')}
+      <div class="edesc">${room.desc}</div>
+      <div class="erule">${room.rule}</div>
+    </div>`;
+
+  const roll=Math.random()*100;
+  let html='';let tierUsed='minion';
+
+  if(roll<bossCh){
+    if(state.mode==='cards'){
+      state.currentMonsters = [{ id: 0, name: 'Carta Física de Chefe', tier: 'boss', dead: false, isCard: true }];
+      html=makeCardDraw(1,'boss',statMult,0,0) + renderMonstersHTML();
+    } else {
+      const boss={...ri(MONSTERS.boss)};
+      boss.hp=scaleStat(boss.hp,statMult);boss.atk=scaleStat(boss.atk,statMult);
+      state.currentMonsters = [{ ...boss, id: 0, dead: false }];
+      html=makeMonsterCard(state.currentMonsters[0],1,1,state.players>=5?' [Reforcado]':'');
+    }
+    tierUsed='boss';
+    addLog('BOSS encontrado na sala '+(state.roomsCleared+1)+'!');
+  } else {
+    const qty=rn(baseQty,adjMax);
+    if(state.mode==='cards'){
+      let nM=0,nE=0;
+      for(let i=0;i<qty;i++){if(Math.random()*100<minionCh)nM++;else nE++;}
+      state.currentMonsters = [];
+      for(let i=0;i<qty;i++){
+        const tier=i<nM?'minion':'elite';
+        state.currentMonsters.push({ id: i, name: `Carta Física ${i+1}`, tier, dead: false, isCard: true });
+      }
+      html=makeCardDraw(qty,'mixed',statMult,nM,nE) + renderMonstersHTML();
+      tierUsed=nE>0?'elite':'minion';
+      addLog('Sala '+(state.roomsCleared+1)+': puxar '+qty+' carta(s) física(s).');
+    } else {
+      state.currentMonsters = [];
+      for(let i=0;i<qty;i++){
+        const pool=Math.random()*100<minionCh?MONSTERS.minion:MONSTERS.elite;
+        const m={...ri(pool)};m.hp=scaleStat(m.hp,statMult);m.atk=scaleStat(m.atk,statMult);
+        m.id = i; m.dead = false;
+        state.currentMonsters.push(m);
+      }
+      tierUsed=state.currentMonsters.some(m=>m.tier==='elite')?'elite':'minion';
+      html=renderMonstersHTML();
+      addLog('Sala '+(state.roomsCleared+1)+': '+qty+' monstro(s) - '+state.currentMonsters.map(m=>m.name).join(', '));
+    }
+  }
+
+  state.lastMonsterTier=tierUsed;
+  const el=document.getElementById('monster-area');
+  el.innerHTML=html;el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),500);
+  state.threatLevel=Math.min(100,state.threatLevel+(tierUsed==='boss'?20:tierUsed==='elite'?8:4)+state.roomsCleared*1.2);
+  
+  renderStatus();renderSidebarStatus();
+  updateRevealButton();
+  addLog('Sala: '+room.name+' ('+roomTag+')');
+}
+
+function renderMonstersHTML() {
+  return state.currentMonsters.map((m, i) => m.isCard ? makePhysicalCard(m, i+1, state.currentMonsters.length) : makeMonsterCard(m, i+1, state.currentMonsters.length)).join('') + makeFinishRoomButton();
+}
+
+function makeFinishRoomButton() {
+  const allDead = state.currentMonsters.length > 0 && state.currentMonsters.every(m => m.dead);
+  
+  if (allDead) {
+    return `
+      <div id="room-clear-banner" style="background: linear-gradient(180deg, rgba(45,106,45,0.15) 0%, rgba(20,50,20,0.35) 100%); border: 1px solid #27ae60; padding: 18px; border-radius: 4px; margin-top: 15px; text-align: center; animation: fadeIn 0.3s ease;">
+        <h3 style="color: #2ecc71; font-family: var(--ft); letter-spacing: 1px; font-size: 13px; margin-bottom: 10px; text-transform: uppercase;">⚔️ TODOS OS MONSTROS DERROTADOS! ⚔️</h3>
+        <button onclick="finishCurrentRoom()" style="background: #27ae60; border: 1px solid #2ecc71; color: white; font-family: var(--ft); font-size: 12px; letter-spacing: 1px; padding: 10px 20px; cursor: pointer; border-radius: 3px; font-weight: bold; width: 100%; text-transform: uppercase;">
+          Limpar Sala
+        </button>
+      </div>
+    `;
+  }
+  return '';
+}
+
+function toggleMonsterDead(id) {
+  const monster = state.currentMonsters.find(m => m.id === id);
+  if (monster) {
+    monster.dead = !monster.dead;
+    addLog(`${monster.name} foi ${monster.dead ? 'derrotado ☠' : 'revivido ✓'}.`);
+    
+    const el = document.getElementById('monster-area');
+    if (el) el.innerHTML = renderMonstersHTML();
+    updateRevealButton();
+  }
+}
+
+function finishCurrentRoom(silent) {
+  state.roomsCleared++;
+  if(!silent)addLog(`Sucesso: Sala ${state.roomsCleared} purificada. Registre o loot equivalente.`);
+  state.currentMonsters=[];
+  
+  renderStatus();
+  renderSidebarStatus();
+  renderPartyImpact();
+  updateRevealButton();
+  
+  if(!silent) {
+    document.getElementById('monster-area').innerHTML = `<div class="empty-state" style="color: var(--green);">Sala ${state.roomsCleared} Limpa! Loot sugerido de tier: [${state.lastMonsterTier.toUpperCase()}].</div>`;
+  }
+}
+
+function makeCardDraw(qty,type,statMult,nM,nE){
+  let detail='',pills='';
+  if(type==='boss'){
+    detail='Puxe <strong style="color:var(--blood-bright)">1 carta de CHEFE</strong> do baralho físico.';
+    pills='<span class="draw-tier-pill dtp-boss">Chefe x1</span>';
+  } else {
+    const parts=[];
+    if(nM>0)parts.push('<strong style="color:var(--green)">'+nM+' Lacaio'+(nM>1?'s':'')+'</strong>');
+    if(nE>0)parts.push('<strong style="color:var(--gold-light)">'+nE+' Elite'+(nE>1?'s':'')+'</strong>');
+    detail='Puxe '+parts.join(' + ')+' do baralho físico de monstros.';
+    if(nM>0)pills+='<span class="draw-tier-pill dtp-minion">Lacaio x'+nM+'</span>';
+    if(nE>0)pills+='<span class="draw-tier-pill dtp-elite">Elite x'+nE+'</span>';
+  }
+  const note=statMult!==1?'<div class="card-note">Use os monstros físicos com '+Math.round(statMult*100)+'% da força base ('+state.players+' jogadores).</div>':'';
+  return`<div class="card-draw-result">
+    <div class="draw-number">${qty}</div>
+    <div class="draw-label">carta${qty>1?'s':''} do baralho</div>
+    <div class="draw-tier-row">${pills}</div>
+    <div class="draw-detail">${detail}</div>
+    ${note}
+  </div>`;
+}
+
+function makePhysicalCard(m,idx,total){
+  const tierCls={minion:'t-minion',elite:'t-elite',boss:'t-boss'}[m.tier];
+  const tierLabel={minion:'Lacaio',elite:'Elite',boss:'Chefe'}[m.tier];
+  return`<div class="physical-card ${m.dead?'dead':''}">
+    <div>
+      <div class="monster-num">CARTA ${idx}/${total}</div>
+      <span class="tier-pill ${tierCls}">${tierLabel}</span>
+      <div class="physical-card-name">${m.name}</div>
+      <div class="physical-card-note">Marque quando o monstro físico for derrotado.</div>
+    </div>
+    <button onclick="toggleMonsterDead(${m.id})" style="background: ${m.dead ? '#224422' : '#441111'}; border: 1px solid ${m.dead ? '#2ecc71' : '#e74c3c'}; color: var(--parchment); font-family: var(--ft); font-size: 10px; padding: 8px 12px; cursor: pointer; border-radius: 3px; letter-spacing: 1px; flex-shrink: 0;">
+      ${m.dead ? '✓ VIVO' : '☠ MORTO'}
+    </button>
+  </div>`;
+}
+
+function makeMonsterCard(m,idx,total,extra){
+  extra=extra||'';
+  const tierCls={minion:'t-minion',elite:'t-elite',boss:'t-boss'}[m.tier];
+  const tierLabel={minion:'Lacaio',elite:'Elite',boss:'Chefe'}[m.tier];
+  const num=total>1?'<div class="monster-num">MONSTRO '+idx+'/'+total+'</div>':'';
+  
+  const deadStyle = m.dead ? 'opacity: 0.35; filter: grayscale(50%); border-color: #333;' : '';
+  const deadText = m.dead ? 'text-decoration: line-through; color: var(--mist-dim);' : '';
+
+  return`<div class="monster-card ${m.tier==='boss'?'boss-card':''}" style="${deadStyle} transition: all 0.25s;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        ${num}
+        <span class="tier-pill ${tierCls}">${tierLabel}</span>${extra?'<span style="color:var(--blood-bright);font-size:11px;margin-left:8px;">'+extra+'</span>':''}
+        <div class="monster-name" style="${deadText}">${m.name}</div>
+        <div class="monster-type">${m.type}</div>
+      </div>
+      
+      <button onclick="toggleMonsterDead(${m.id})" style="background: ${m.dead ? '#224422' : '#441111'}; border: 1px solid ${m.dead ? '#2ecc71' : '#e74c3c'}; color: var(--parchment); font-family: var(--ft); font-size: 10px; padding: 5px 10px; cursor: pointer; border-radius: 3px; letter-spacing: 1px;">
+        ${m.dead ? '✓ VIVO' : '☠ MORTO'}
+      </button>
+    </div>
+    ${cardImage(m,'monster-image')}
+    <div class="mstats">
+      <div class="sbox"><div class="slabel">Vida</div><div class="sval hp">${m.hp}</div></div>
+      <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${m.atk}</div><div class="atk-type">${m.atkType || ''}</div></div>
+      <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${m.defF}</div></div>
+      <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${m.defM}</div></div>
+    </div>
+    <div class="mability">${m.ability}</div>
+  </div>`;
+}
+
+function renderLives(){
+  document.getElementById('lives-grid').innerHTML=state.playerStatus.map((alive,i)=>`
+    <button class="life-btn ${alive?'':'dead'}" onclick="togglePlayer(${i})">
+      <div style="font-size:clamp(9px,2.5vw,11px);">Heroi ${i+1}</div>
+      <div style="font-size:clamp(10px,2.8vw,12px);margin-top:2px;">${alive?'Vivo':'Caiu'}</div>
+    </button>`).join('');
+}
+
+function togglePlayer(i){
+  state.playerStatus[i]=!state.playerStatus[i];
+  state.playersAlive=state.playerStatus.filter(Boolean).length;
+  if(!state.playerStatus[i]){addLog('Heroi '+(i+1)+' caiu!');state.threatLevel=Math.min(100,state.threatLevel+10);}
+  else{addLog('Heroi '+(i+1)+' ressuscitou!');state.threatLevel=Math.max(0,state.threatLevel-5);}
+  renderLives();renderStatus();renderPartyImpact();renderSidebarStatus();
+}
+
+function renderPartyImpact(){
+  const alive=state.playersAlive,total=state.players;
+  const{baseQty,adjMax,statMult}=getScaleParams(total,alive,state.roomsCleared,state.threatLevel);
+  const pct=alive/total;
+  const status=pct>=1?'Party completa.':pct>=0.67?(total-alive)+' heroi(s) caiu - ameaca elevada.':pct>=0.34?'Metade caiu - perigo!':'Crise - perigo maximo!';
+  document.getElementById('party-impact').innerHTML=`
+    <div class="preview-row"><span>Herois vivos</span><span class="preview-val">${alive}/${total}</span></div>
+    <div class="preview-row"><span>Monstros/sala</span><span class="preview-val">${baseQty}-${adjMax}</span></div>
+    <div class="preview-row"><span>Forca</span><span class="preview-val">${Math.round(statMult*100)}%</span></div>
+    <div class="preview-row"><span>Status</span><span class="preview-val" style="font-size:clamp(10px,2.5vw,12px);">${status}</span></div>
+  `;
+}
+
+function addLog(entry){
+  const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  state.log.unshift({time:now,text:entry});
+  if(state.log.length>30)state.log.pop();
+  const el=document.getElementById('log-list');
+  if(el)el.innerHTML=state.log.map(e=>'<div class="log-item"><span class="log-time">['+e.time+']</span> '+e.text+'</div>').join('');
+}
+
+function clearLog(){state.log=[];document.getElementById('log-list').innerHTML='<div class="empty-state">Cronica limpa.</div>';}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
+  
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  
+  const targetPanel = document.getElementById('tab-' + tab);
+  if (targetPanel) targetPanel.classList.add('active');
+  
+  const mobileTab = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick') && t.getAttribute('onclick').includes(tab));
+  if (mobileTab) mobileTab.classList.add('active');
+  
+  const desktopBtn = Array.from(document.querySelectorAll('.sidebar-nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tab));
+  if (desktopBtn) desktopBtn.classList.add('active');
+}
+
+function deskTab(tab, btn) {
+  switchTab(tab);
+}
+
+updatePreview();
+</script>
+</body>
+</html>
