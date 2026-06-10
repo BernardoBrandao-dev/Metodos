@@ -84,6 +84,14 @@ html, body {
   min-height: 0; /* Essencial para sub-elementos scrollarem corretamente */
 }
 
+#victory-screen {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  width: 100%;
+}
+
 /* LAYOUT RESPONSIVO DINÂMICO */
 .layout {
   display: flex;
@@ -256,8 +264,26 @@ html, body {
 .card-image { width: 100%; aspect-ratio: 16 / 6; object-fit: contain; object-position: center; border: 1px solid var(--stone-light); border-radius: 3px; margin: 10px 0 12px; background: var(--stone); display: block; }
 .monster-image { max-height: 240px; }
 .room-image { max-height: 260px; }
+.loot-image { max-height: 190px; }
 .monster-name { font-family: var(--ft); font-size: 18px; color: var(--parch-light); margin-bottom: 2px; }
 .monster-type { font-size: 12px; color: var(--mist); font-style: italic; margin-bottom: 10px; }
+
+.loot-panel { background: linear-gradient(180deg, rgba(45,106,45,0.14) 0%, rgba(20,50,20,0.32) 100%); border: 1px solid var(--green); border-radius: 4px; padding: 14px; margin-top: 12px; animation: fadeIn .3s ease; }
+.loot-header { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 12px; }
+.loot-title { font-family: var(--ft); color: var(--parch-light); font-size: 15px; letter-spacing: 1px; text-transform: uppercase; }
+.loot-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media(min-width:640px){ .loot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.loot-card { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 3px; padding: 12px; }
+.loot-card.r-uncommon { border-color: var(--blue); }
+.loot-card.r-rare { border-color: var(--gold); }
+.loot-card.r-relic { border-color: var(--purple); }
+.loot-name { font-family: var(--ft); font-size: 16px; color: var(--parch-light); margin-bottom: 4px; }
+.loot-meta { font-size: 12px; color: var(--mist); font-style: italic; line-height: 1.4; }
+.loot-rarity { font-family: var(--ft); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; display: inline-block; margin-bottom: 8px; }
+.loot-rarity.r-common { background: rgba(168,144,112,.12); color: var(--mist); border: 1px solid var(--mist-dim); }
+.loot-rarity.r-uncommon { background: rgba(79,195,247,.12); color: var(--blue); border: 1px solid var(--blue); }
+.loot-rarity.r-rare { background: rgba(212,160,23,.12); color: var(--gold-light); border: 1px solid var(--gold); }
+.loot-rarity.r-relic { background: rgba(184,107,255,.12); color: var(--purple); border: 1px solid var(--purple); }
 
 .mstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
 .sbox { background: var(--stone); border: 1px solid var(--stone-light); border-radius: 3px; padding: 8px; text-align: center; }
@@ -317,6 +343,17 @@ html, body {
 .divider { height: 1px; background: var(--stone-light); margin: 16px 0; flex-shrink: 0; }
 .sb-divider { height: 1px; background: var(--stone-light); margin: 14px 0; }
 .empty-state { text-align: center; padding: 40px 16px; color: var(--mist-dim); font-style: italic; font-size: 14px; opacity: .7; }
+
+.victory-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; }
+.victory-panel { width: min(720px, 100%); border: 1px solid var(--gold); background: linear-gradient(180deg, rgba(212,160,23,.12), rgba(37,32,25,.95)); border-radius: 4px; padding: 24px; text-align: center; }
+.victory-kicker { font-family: var(--ft); font-size: 11px; color: var(--gold-light); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.victory-title { font-family: var(--ft); font-size: clamp(24px, 7vw, 44px); color: var(--parch-light); line-height: 1.05; margin-bottom: 14px; }
+.victory-copy { color: var(--mist); font-size: 16px; line-height: 1.6; font-style: italic; margin: 0 auto 18px; max-width: 560px; }
+.victory-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
+@media(min-width:560px){ .victory-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.victory-stat { background: var(--stone); border: 1px solid var(--stone-light); border-radius: 3px; padding: 10px 6px; }
+.victory-stat-label { font-family: var(--ft); font-size: 9px; color: var(--mist-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.victory-stat-val { font-family: var(--ft); font-size: 18px; color: var(--gold-light); }
 
 .shake { animation: shake .4s ease; }
 @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-4px) rotate(-0.5deg);} 40%{transform:translateX(4px) rotate(0.5deg);} 60%{transform:translateX(-3px);} 80%{transform:translateX(3px);} }
@@ -400,11 +437,11 @@ html, body {
             <div class="threat-bar"><div class="threat-fill" id="threat-fill" style="width:0%; background:var(--green);"></div></div>
           </div>
           <div id="wave-info" class="wave-badge"></div>
-          <button class="action-btn btn-red" id="reveal-room-btn" onclick="rollRoom()">Revelar Nova Sala</button>
           <div id="room-area"></div>
           <div id="monster-area">
-            <div class="empty-state">Pressione Revelar Nova Sala para começar...</div>
+            <div class="empty-state">Pressione Entrar na Primeira Sala para comecar...</div>
           </div>
+          <button class="action-btn btn-red" id="reveal-room-btn" onclick="rollRoom()">Entrar na Primeira Sala</button>
         </div>
 
         <div id="tab-party" class="panel">
@@ -427,6 +464,18 @@ html, body {
           <button class="action-btn btn-gray" onclick="clearLog()" style="font-size:11px; margin-bottom:0;">Limpar Histórico</button>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <div id="victory-screen">
+    <div class="victory-wrap">
+      <div class="victory-panel">
+        <div class="victory-kicker">Masmorra Concluida</div>
+        <div class="victory-title">Parabens, herois</div>
+        <p class="victory-copy">Golgotharionexis caiu, a ultima sala foi purificada e a cronica desta expedicao agora pertence aos sobreviventes.</p>
+        <div class="victory-stats" id="victory-stats"></div>
+        <button class="start-btn" onclick="backToSetup()">Nova Sessao</button>
       </div>
     </div>
   </div>
@@ -463,6 +512,10 @@ const MONSTERS={
   ]
 };
 
+const FINAL_BOSS_NAMES=['Golgotharionexis'];
+const NECROMANCER={name:'Golgotharionexis',type:'Resistente a mágico; vulnerável a físico/sagrado.',tier:'boss',hp:36,atk:8,atkType:'mágico',defF:2,defM:5,ability:'Invocar Morto: invoca um zumbi com metade do PV. Recarga 2. Passiva: enquanto houver zumbi em campo, recebe -2 de dano.'};
+const MAX_ROOMS=12;
+
 const ROOMS=[
   {type:'positive',tag:'BUFF',name:'Pulso de Cura',desc:'Uma magia ancestral pulsa pela sala a cada rodada.',rule:'Toda rodada, todos curam +5 de vida.'},
   {type:'positive',tag:'BUFF MÁGICO',name:'Benção Arcana',desc:'Uma antiga sala de pesquisa cheia de magia acumulada.',rule:'Atacantes mágicos ganham +3 de dano.'},
@@ -476,6 +529,44 @@ const ROOMS=[
   {type:'neutral',tag:'BUFF MISTO',name:'Cântico dos Bárbaros',desc:'Uma música ancestral dos bárbaros deixa todos mais fortes, porém mais frágeis.',rule:'Todos ganham +2 de ataque e -2 em cada defesa.'},
   {type:'neutral',tag:'SALA DE RECOMPENSA',name:'Altar de Sacrifício',desc:'Eliminações são recompensadas por um deus antigo.',rule:'Toda vez que alguém morrer, o eliminador ganha +2 de ataque.'},
 ];
+
+const LOOT_ITEMS=[
+  {name:'Adagas',kind:'Arma leve',rarity:'common',img:'assets/itens/adagas.png'},
+  {name:'Antidoto',kind:'Consumivel',rarity:'common',img:'assets/itens/antidoto.png'},
+  {name:'Bandagem',kind:'Consumivel',rarity:'common',img:'assets/itens/Bandagem.png'},
+  {name:'Erva',kind:'Consumivel',rarity:'common',img:'assets/itens/Erva.png'},
+  {name:'Sal de Cura',kind:'Consumivel',rarity:'common',img:'assets/itens/Sal cura.png'},
+  {name:'Agua Benta',kind:'Consumivel sagrado',rarity:'uncommon',img:'assets/itens/Agua benta.png'},
+  {name:'Arco',kind:'Arma a distancia',rarity:'uncommon',img:'assets/itens/arco.png'},
+  {name:'Capa',kind:'Equipamento',rarity:'uncommon',img:'assets/itens/Capa.png'},
+  {name:'Elmo',kind:'Armadura',rarity:'uncommon',img:'assets/itens/Elmo.png'},
+  {name:'Escudo',kind:'Defesa',rarity:'uncommon',img:'assets/itens/Escudo.png'},
+  {name:'Machado',kind:'Arma pesada',rarity:'uncommon',img:'assets/itens/Machado.png'},
+  {name:'Pergaminho',kind:'Magia',rarity:'uncommon',img:'assets/itens/pergaminho.png'},
+  {name:'Varinha',kind:'Foco magico',rarity:'uncommon',img:'assets/itens/varinha.png'},
+  {name:'Ampulheta',kind:'Artefato temporal',rarity:'rare',img:'assets/itens/Ampulheta.png'},
+  {name:'Anel',kind:'Joia encantada',rarity:'rare',img:'assets/itens/Anel.png'},
+  {name:'Bracelete',kind:'Joia encantada',rarity:'rare',img:'assets/itens/bracelete.png'},
+  {name:'Brasao',kind:'Insignia',rarity:'rare',img:'assets/itens/bras\u00e3o.png'},
+  {name:'Cristal',kind:'Catalisador',rarity:'rare',img:'assets/itens/Cristal.png'},
+  {name:'Esmiril',kind:'Material raro',rarity:'rare',img:'assets/itens/Esmiril.png'},
+  {name:'Harpa',kind:'Instrumento magico',rarity:'rare',img:'assets/itens/harpa.png'},
+  {name:'Olho',kind:'Componente oculto',rarity:'rare',img:'assets/itens/Olho.png'},
+  {name:'Sal Purificador',kind:'Consumivel sagrado',rarity:'rare',img:'assets/itens/Sal pu.png'},
+  {name:'Coracao',kind:'Reliquia vital',rarity:'relic',img:'assets/itens/cora\u00e7\u00e3o.png'},
+  {name:'Lagrima',kind:'Reliquia arcana',rarity:'relic',img:'assets/itens/lagrima.png'},
+  {name:'Relicario',kind:'Reliquia sagrada',rarity:'relic',img:'assets/itens/relic\u00e1rio.png'},
+  {name:'Tomo',kind:'Conhecimento proibido',rarity:'relic',img:'assets/itens/Tomo.png'},
+];
+
+const LOOT_RARITY_LABEL={common:'Comum',uncommon:'Incomum',rare:'Raro',relic:'Reliquia'};
+const LOOT_TIER_LABEL={minion:'Lacaio',elite:'Elite',boss:'Chefe'};
+const LOOT_TIER_CLASS={minion:'t-minion',elite:'t-elite',boss:'t-boss'};
+const LOOT_RARITY_WEIGHTS={
+  minion:[{rarity:'common',weight:62},{rarity:'uncommon',weight:28},{rarity:'rare',weight:9},{rarity:'relic',weight:1}],
+  elite:[{rarity:'common',weight:38},{rarity:'uncommon',weight:38},{rarity:'rare',weight:20},{rarity:'relic',weight:4}],
+  boss:[{rarity:'uncommon',weight:34},{rarity:'rare',weight:46},{rarity:'relic',weight:20}],
+};
 
 const IMAGE_BY_NAME={
   'Fantasma':'assets/criaturas/fantasma.png',
@@ -496,6 +587,7 @@ const IMAGE_BY_NAME={
   'Armadura Invocada':'assets/bosses/armadura-invocada.png',
   'Golgotharionexis':'assets/bosses/golgotharionexis.png',
   'Cão do Inferno':'assets/bosses/cao-do-inferno.png',
+  'Necromante':'assets/bosses/golgotharionexis.png',
   'Pulso de Cura':'assets/salas/pulso-de-cura.png',
   'Benção Arcana':'assets/salas/bençao-arcana.png',
   'Bastião':'assets/salas/bastiao.png',
@@ -514,36 +606,175 @@ function cardImage(entity,cls){
   return src?`<img class="card-image ${cls}" src="${src}" alt="${entity.name}" loading="lazy" onerror="this.style.display='none'">`:'';
 }
 
+function lootImage(item){
+  return `<img class="card-image loot-image" src="${item.img}" alt="${item.name}" loading="lazy" onerror="this.style.display='none'">`;
+}
+
+function weightedPick(entries){
+  const total=entries.reduce((sum,e)=>sum+e.weight,0);
+  let roll=Math.random()*total;
+  for(const entry of entries){
+    roll-=entry.weight;
+    if(roll<=0)return entry;
+  }
+  return entries[entries.length-1];
+}
+
+function getLootCount(tier){
+  if(tier==='boss')return rn(2,4);
+  if(tier==='elite')return Math.random()<0.55?2:1;
+  return Math.random()<0.25?2:1;
+}
+
+function rollLoot(tier){
+  const drops=[];
+  const used=new Set();
+  const count=getLootCount(tier);
+  const weights=LOOT_RARITY_WEIGHTS[tier] || LOOT_RARITY_WEIGHTS.minion;
+  for(let i=0;i<count;i++){
+    const rarity=weightedPick(weights).rarity;
+    let pool=LOOT_ITEMS.filter(item=>item.rarity===rarity && !used.has(item.name));
+    if(pool.length===0)pool=LOOT_ITEMS.filter(item=>!used.has(item.name));
+    if(pool.length===0)pool=LOOT_ITEMS;
+    const item=ri(pool);
+    used.add(item.name);
+    drops.push({...item,id:i});
+  }
+  return drops;
+}
+
+function renderLootHTML(drops,roomNumber,tier){
+  const tierLabel=LOOT_TIER_LABEL[tier] || 'Sala';
+  const tierCls=LOOT_TIER_CLASS[tier] || 't-minion';
+  const victoryButton=roomNumber>=MAX_ROOMS?'<button class="action-btn btn-red" onclick="showVictoryScreen()" style="margin:14px 0 0;">Celebrar Vitoria</button>':'';
+  return `<div class="loot-panel">
+    <div class="loot-header">
+      <div class="loot-title">Loot da Sala ${roomNumber}</div>
+      <span class="tier-pill ${tierCls}">${tierLabel}</span>
+    </div>
+    <div class="loot-grid">
+      ${drops.map(item=>`
+        <div class="loot-card r-${item.rarity}">
+          <span class="loot-rarity r-${item.rarity}">${LOOT_RARITY_LABEL[item.rarity]}</span>
+          <div class="loot-name">${item.name}</div>
+          ${lootImage(item)}
+          <div class="loot-meta">${item.kind}</div>
+        </div>
+      `).join('')}
+    </div>
+    ${victoryButton}
+  </div>`;
+}
+
 function getScaleParams(players,alive,rooms,threat){
-  const baseQty=[1,1,2,2,3,3][players-1] || 2;
-  const maxQty=[2,2,3,4,5,6][players-1] || 4;
-  const aliveRatio=alive/players;
-  const adjMax=Math.max(baseQty,Math.round(maxQty*(0.5+aliveRatio*0.5)));
-  const statMult=[0.8,0.9,1.0,1.1,1.25,1.4][players-1] || 1.0;
+  const activeHeroes=Math.max(1,alive);
+  const threatStage=Math.floor(threat/25);
+  const roomStage=Math.floor(rooms/4);
+  const earlyBase=Math.max(1,Math.ceil(activeHeroes/2));
+  const maxCap=activeHeroes===1?4:activeHeroes*3;
+  const adjBase=Math.min(maxCap,earlyBase+Math.floor((threatStage*activeHeroes)/4)+Math.floor(roomStage/2));
+  const adjMax=Math.max(adjBase,Math.min(maxCap,earlyBase+activeHeroes+Math.ceil(((threatStage+roomStage)*activeHeroes)/3)));
+  const statMult=1;
   const bossCh=rooms>=3?Math.min(8+rooms*3+threat/6,50):0;
   let minionCh;
-  if(threat<20)minionCh=85;
-  else if(threat<40)minionCh=65;
-  else if(threat<60)minionCh=40;
-  else if(threat<80)minionCh=20;
-  else minionCh=10;
-  return{baseQty,adjMax,statMult,bossCh,minionCh};
+  if(threat<20)minionCh=75;
+  else if(threat<40)minionCh=55;
+  else if(threat<60)minionCh=35;
+  else if(threat<80)minionCh=18;
+  else minionCh=5;
+  return{baseQty:adjBase,adjMax,statMult,bossCh,minionCh};
 }
 function scaleStat(b,m){return Math.round(b*m);}
 
-let state={mode:'app',players:3,playersAlive:3,playerStatus:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[]};
+let state={mode:'app',players:3,playersAlive:3,playerStatus:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[],currentLoot:[],usedBosses:[]};
 function ri(a){return a[Math.floor(Math.random()*a.length)];}
 function rn(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
 function threatColor(t){return t<33?'var(--green)':t<66?'var(--gold-light)':'var(--blood-bright)';}
 function allCurrentMonstersDead(){return state.currentMonsters.length>0 && state.currentMonsters.every(m=>m.dead);}
 function hasLivingMonsters(){return state.currentMonsters.some(m=>!m.dead);}
 
+function calcThreatForRoom(roomNumber){
+  const roomProgress=(clamp(roomNumber,1,MAX_ROOMS)-1)/(MAX_ROOMS-1);
+  const fallen=state.players-state.playersAlive;
+  return clamp(Math.round(roomProgress*100+fallen*5),0,100);
+}
+
+function syncThreatToRoom(roomNumber){
+  state.threatLevel=calcThreatForRoom(roomNumber);
+}
+
+function unusedBossPool(){
+  return MONSTERS.boss.filter(b=>!FINAL_BOSS_NAMES.includes(b.name) && !state.usedBosses.includes(b.name));
+}
+
+function forcedBossesStillNeeded(nextRoom){
+  let needed=0;
+  if(nextRoom<10)needed++;
+  if(nextRoom<11)needed++;
+  return needed;
+}
+
+function canSpendOptionalBoss(nextRoom){
+  return unusedBossPool().length>forcedBossesStillNeeded(nextRoom);
+}
+
+function pickUniqueBoss(){
+  const pool=unusedBossPool();
+  if(pool.length===0)return null;
+  const boss={...ri(pool)};
+  state.usedBosses.push(boss.name);
+  return boss;
+}
+
+function markBossUsed(name){
+  if(!state.usedBosses.includes(name))state.usedBosses.push(name);
+}
+
+function bossSupportCount(nextRoom,threat,alive,forceNecromancer){
+  const activeHeroes=Math.max(1,alive);
+  const threatStage=Math.floor(threat/25);
+  const base=forceNecromancer?Math.max(3,Math.ceil(activeHeroes*0.75)):Math.max(2,Math.ceil(activeHeroes/2));
+  const threatBonus=Math.floor((threatStage*activeHeroes)/4);
+  const roomBonus=nextRoom>=10?Math.ceil(activeHeroes/2):nextRoom>=7?Math.ceil(activeHeroes/3):0;
+  const cap=forceNecromancer?activeHeroes+5:activeHeroes+4;
+  return Math.min(base+threatBonus+roomBonus,cap);
+}
+
+function makeSupportMonster(id,statMult,minionCh){
+  const supportEliteChance=Math.max(100-minionCh, state.threatLevel>=75?60:35);
+  const pool=Math.random()*100<supportEliteChance?MONSTERS.elite:MONSTERS.minion;
+  const m={...ri(pool)};
+  m.hp=scaleStat(m.hp,statMult);m.atk=scaleStat(m.atk,statMult);
+  m.id=id;m.dead=false;
+  return m;
+}
+
+function makeBossSupportCards(startId,count,minionCh){
+  const cards=[];
+  for(let i=0;i<count;i++){
+    const eliteChance=Math.max(100-minionCh, state.threatLevel>=75?60:35);
+    const tier=Math.random()*100<eliteChance?'elite':'minion';
+    cards.push({ id:startId+i, name:`Carta Fisica de Apoio ${i+1}`, tier, dead:false, isCard:true });
+  }
+  return cards;
+}
+
 function updateRevealButton(){
   const btn=document.getElementById('reveal-room-btn');
   if(!btn)return;
+  if(state.roomsCleared>=MAX_ROOMS && !hasLivingMonsters()){
+    btn.style.display='none';
+    return;
+  }
+  if(allCurrentMonstersDead()){
+    btn.style.display='none';
+    return;
+  }
+  btn.style.display='';
   const locked=hasLivingMonsters();
   btn.disabled=locked;
-  btn.textContent=locked?'Derrote todos os monstros':'Revelar Nova Sala';
+  btn.textContent=locked?'Derrote todos os monstros':state.roomsCleared===0?'Entrar na Primeira Sala':'Revelar Nova Sala';
 }
 
 function setMode(m,btn){
@@ -575,7 +806,7 @@ function updatePreview(){
       <div class="preview-row"><span>Monstros por sala</span><span class="preview-val">${baseQty}-${adjMax}</span></div>
       <div class="preview-row"><span>Forca dos monstros</span><span class="preview-val">${Math.round(statMult*100)}%</span></div>
       <div class="preview-row"><span>Chance de Boss</span><span class="preview-val">Desbloqueado na sala 4</span></div>
-      <div class="preview-row"><span>Loot</span><span class="preview-val">Registrar após limpar a sala</span></div>
+      <div class="preview-row"><span>Loot</span><span class="preview-val">Drop automatico ao limpar sala</span></div>
     `;
   }
 }
@@ -584,12 +815,13 @@ function startGame(){
   state.playersAlive=state.players;
   state.playerStatus=Array(state.players).fill(true);
   state.roomsCleared=0;state.threatLevel=0;state.totalGold=0;state.log=[];state.lastMonsterTier='minion';
-  state.currentMonsters=[];
+  state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
   
   document.getElementById('setup-screen').style.display='none';
   document.getElementById('game-screen').style.display='block';
+  document.getElementById('victory-screen').style.display='none';
   
-  document.getElementById('monster-area').innerHTML='<div class="empty-state">Pressione Revelar Nova Sala para comecar...</div>';
+  document.getElementById('monster-area').innerHTML='<div class="empty-state">Pressione Entrar na Primeira Sala para comecar...</div>';
   document.getElementById('room-area').innerHTML='';
   document.getElementById('log-list').innerHTML='<div class="empty-state">Aventura iniciada. Boa sorte...</div>';
   
@@ -603,23 +835,38 @@ function startGame(){
 function backToSetup(){
   document.getElementById('setup-screen').style.display='block';
   document.getElementById('game-screen').style.display='none';
-  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];
+  document.getElementById('victory-screen').style.display='none';
+  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
   updatePreview();
+}
+
+function showVictoryScreen(){
+  const el=document.getElementById('victory-stats');
+  if(el)el.innerHTML=`
+    <div class="victory-stat"><div class="victory-stat-label">Salas</div><div class="victory-stat-val">${state.roomsCleared}/${MAX_ROOMS}</div></div>
+    <div class="victory-stat"><div class="victory-stat-label">Herois</div><div class="victory-stat-val">${state.playersAlive}/${state.players}</div></div>
+    <div class="victory-stat"><div class="victory-stat-label">Ameaca</div><div class="victory-stat-val">${Math.round(state.threatLevel)}%</div></div>
+    <div class="victory-stat"><div class="victory-stat-label">Loot Final</div><div class="victory-stat-val">${state.currentLoot.length}</div></div>
+  `;
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('victory-screen').style.display='block';
 }
 
 function renderStatus(){
   const t=state.threatLevel;
+  const nextRoom=Math.min(state.roomsCleared+1,MAX_ROOMS);
   document.getElementById('status-bar').innerHTML=`
     <div class="stat-chip"><div class="chip-label">Herois Vivos</div><div class="chip-val ${state.playersAlive<=1?'danger':state.playersAlive<state.players?'warn':'safe'}">${state.playersAlive}/${state.players}</div></div>
-    <div class="stat-chip"><div class="chip-label">Salas Limpas</div><div class="chip-val warn">${state.roomsCleared}</div></div>
-    <div class="stat-chip"><div class="chip-label">Status</div><div class="chip-val safe" style="font-size:clamp(11px,3vw,14px);">Ativo</div></div>
+    <div class="stat-chip"><div class="chip-label">Salas Limpas</div><div class="chip-val warn">${state.roomsCleared}/${MAX_ROOMS}</div></div>
+    <div class="stat-chip"><div class="chip-label">Status</div><div class="chip-val safe" style="font-size:clamp(11px,3vw,14px);">${state.roomsCleared>=MAX_ROOMS?'Concluida':'Ativo'}</div></div>
   `;
   document.getElementById('threat-fill').style.width=t+'%';
   document.getElementById('threat-fill').style.background=threatColor(t);
   document.getElementById('threat-pct').textContent=Math.round(t)+'%';
   const labels=['Entrada da Masmorra','Profundezas Rasas','Tuneis Sombrios','Coracao das Trevas','ABISMO FINAL'];
   const li=t<10?0:t<33?1:t<55?2:t<78?3:4;
-  document.getElementById('wave-info').textContent=labels[li]+' - Sala '+(state.roomsCleared+1);
+  document.getElementById('wave-info').textContent=state.roomsCleared>=MAX_ROOMS?'Masmorra Concluida - 12/12':labels[li]+' - Sala '+nextRoom+'/'+MAX_ROOMS;
 }
 
 function renderSidebarStatus(){
@@ -627,7 +874,7 @@ function renderSidebarStatus(){
   const t=state.threatLevel;
   el.innerHTML=`
     <div style="font-size:11px;color:var(--mist);margin-bottom:4px;font-family:var(--ft);">Herois: <span style="color:${state.playersAlive<=1?'var(--blood-bright)':state.playersAlive<state.players?'var(--gold-light)':'var(--green)'}">${state.playersAlive}/${state.players}</span></div>
-    <div style="font-size:11px;color:var(--mist);margin-bottom:4px;font-family:var(--ft);">Salas: <span style="color:var(--gold-light)">${state.roomsCleared}</span></div>
+    <div style="font-size:11px;color:var(--mist);margin-bottom:4px;font-family:var(--ft);">Salas: <span style="color:var(--gold-light)">${state.roomsCleared}/${MAX_ROOMS}</span></div>
     <div style="font-size:9px;color:var(--mist-dim);font-family:var(--ft);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Ameaca</div>
     <div class="threat-bar"><div class="threat-fill" style="width:${t}%;background:${threatColor(t)};"></div></div>
     <div style="font-size:10px;color:${threatColor(t)};font-family:var(--ft);margin-top:3px;">${Math.round(t)}%</div>
@@ -642,8 +889,20 @@ function rollRoom(){
   }
   if(allCurrentMonstersDead()){
     finishCurrentRoom(true);
+    if(state.roomsCleared>=MAX_ROOMS){
+      document.getElementById('monster-area').innerHTML = '<div class="empty-state" style="color: var(--gold-light);">Masmorra concluida. O ultimo loot foi registrado no log.</div>';
+      updateRevealButton();
+      return;
+    }
+  }
+  if(state.roomsCleared>=MAX_ROOMS){
+    addLog('A masmorra ja foi concluida. Nao ha sala 13.');
+    updateRevealButton();
+    return;
   }
 
+  const nextRoom=state.roomsCleared+1;
+  syncThreatToRoom(nextRoom);
   const{adjMax,baseQty,statMult,bossCh,minionCh}=getScaleParams(state.players,state.playersAlive,state.roomsCleared,state.threatLevel);
   const room=ri(ROOMS);
   const roomTag=room.tag || {positive:'Benção',negative:'Maldição',neutral:'Neutro'}[room.type];
@@ -656,21 +915,38 @@ function rollRoom(){
       <div class="erule">${room.rule}</div>
     </div>`;
 
+  const forceNecromancer=nextRoom===12;
+  const forceBoss=forceNecromancer || nextRoom===10 || nextRoom===11;
   const roll=Math.random()*100;
+  const optionalBoss=roll<bossCh && canSpendOptionalBoss(nextRoom);
+  const supportCount=bossSupportCount(nextRoom,state.threatLevel,state.playersAlive,forceNecromancer);
   let html='';let tierUsed='minion';
 
-  if(roll<bossCh){
-    if(state.mode==='cards'){
-      state.currentMonsters = [{ id: 0, name: 'Carta Física de Chefe', tier: 'boss', dead: false, isCard: true }];
+  if(forceBoss || optionalBoss){
+    if(forceNecromancer){
+      const boss={...NECROMANCER};
+      markBossUsed(boss.name);
+      boss.hp=scaleStat(boss.hp,statMult);boss.atk=scaleStat(boss.atk,statMult);
+      state.currentMonsters = [{ ...boss, id: 0, dead: false }, ...Array.from({length:supportCount},(_,i)=>makeSupportMonster(i+1,statMult,minionCh))];
+      html=renderMonstersHTML();
+      addLog('Golgotharionexis surgiu na sala 12 com '+supportCount+' criatura(s) de apoio!');
+    } else if(state.mode==='cards'){
+      const boss=pickUniqueBoss();
+      const bossName=boss?boss.name:'Chefe sem repeticao disponivel';
+      state.currentMonsters = [{ id: 0, name: 'Carta Física de Chefe - '+bossName, tier: 'boss', dead: false, isCard: true }, ...makeBossSupportCards(1,supportCount,minionCh)];
       html=makeCardDraw(1,'boss',statMult,0,0) + renderMonstersHTML();
     } else {
-      const boss={...ri(MONSTERS.boss)};
+      const boss=pickUniqueBoss();
+      if(!boss){
+        addLog('Nenhum boss sem repeticao disponivel nesta sessao.');
+        return;
+      }
       boss.hp=scaleStat(boss.hp,statMult);boss.atk=scaleStat(boss.atk,statMult);
-      state.currentMonsters = [{ ...boss, id: 0, dead: false }];
-      html=makeMonsterCard(state.currentMonsters[0],1,1,state.players>=5?' [Reforcado]':'');
+      state.currentMonsters = [{ ...boss, id: 0, dead: false }, ...Array.from({length:supportCount},(_,i)=>makeSupportMonster(i+1,statMult,minionCh))];
+      html=renderMonstersHTML();
     }
     tierUsed='boss';
-    addLog('BOSS encontrado na sala '+(state.roomsCleared+1)+'!');
+    if(!forceNecromancer)addLog((forceBoss?'BOSS obrigatorio':'BOSS encontrado')+' na sala '+nextRoom+' com '+supportCount+' criatura(s) de apoio!');
   } else {
     const qty=rn(baseQty,adjMax);
     if(state.mode==='cards'){
@@ -701,7 +977,6 @@ function rollRoom(){
   state.lastMonsterTier=tierUsed;
   const el=document.getElementById('monster-area');
   el.innerHTML=html;el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),500);
-  state.threatLevel=Math.min(100,state.threatLevel+(tierUsed==='boss'?20:tierUsed==='elite'?8:4)+state.roomsCleared*1.2);
   
   renderStatus();renderSidebarStatus();
   updateRevealButton();
@@ -741,8 +1016,15 @@ function toggleMonsterDead(id) {
 }
 
 function finishCurrentRoom(silent) {
+  if(state.roomsCleared>=MAX_ROOMS)return;
+  const lootTier=state.lastMonsterTier;
+  const drops=rollLoot(lootTier);
+  state.currentLoot=drops;
   state.roomsCleared++;
-  if(!silent)addLog(`Sucesso: Sala ${state.roomsCleared} purificada. Registre o loot equivalente.`);
+  syncThreatToRoom(Math.min(state.roomsCleared+1,MAX_ROOMS));
+  const lootNames=drops.map(item=>item.name).join(', ');
+  if(silent)addLog(`Sala ${state.roomsCleared} limpa automaticamente. Loot: ${lootNames}.`);
+  else addLog(`Sucesso: Sala ${state.roomsCleared} purificada. Loot: ${lootNames}.`);
   state.currentMonsters=[];
   
   renderStatus();
@@ -751,14 +1033,15 @@ function finishCurrentRoom(silent) {
   updateRevealButton();
   
   if(!silent) {
-    document.getElementById('monster-area').innerHTML = `<div class="empty-state" style="color: var(--green);">Sala ${state.roomsCleared} Limpa! Loot sugerido de tier: [${state.lastMonsterTier.toUpperCase()}].</div>`;
+    document.getElementById('monster-area').innerHTML = renderLootHTML(drops,state.roomsCleared,lootTier);
   }
 }
 
 function makeCardDraw(qty,type,statMult,nM,nE){
   let detail='',pills='';
   if(type==='boss'){
-    detail='Puxe <strong style="color:var(--blood-bright)">1 carta de CHEFE</strong> do baralho físico.';
+    const support=state.currentMonsters.filter(m=>m.tier!=='boss').length;
+    detail='Puxe <strong style="color:var(--blood-bright)">1 carta de CHEFE</strong> do baralho físico'+(support>0?' + <strong style="color:var(--gold-light)">'+support+' carta(s) de apoio</strong>.':'.');
     pills='<span class="draw-tier-pill dtp-boss">Chefe x1</span>';
   } else {
     const parts=[];
@@ -838,8 +1121,9 @@ function renderLives(){
 function togglePlayer(i){
   state.playerStatus[i]=!state.playerStatus[i];
   state.playersAlive=state.playerStatus.filter(Boolean).length;
-  if(!state.playerStatus[i]){addLog('Heroi '+(i+1)+' caiu!');state.threatLevel=Math.min(100,state.threatLevel+10);}
-  else{addLog('Heroi '+(i+1)+' ressuscitou!');state.threatLevel=Math.max(0,state.threatLevel-5);}
+  if(!state.playerStatus[i])addLog('Heroi '+(i+1)+' caiu!');
+  else addLog('Heroi '+(i+1)+' ressuscitou!');
+  syncThreatToRoom(Math.min(state.roomsCleared+1,MAX_ROOMS));
   renderLives();renderStatus();renderPartyImpact();renderSidebarStatus();
 }
 
