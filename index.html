@@ -294,6 +294,11 @@ html, body {
 .sval.def { color: var(--blue); }
 .atk-type { font-size: 9px; color: var(--mist); font-family: var(--ft); text-transform: uppercase; margin-top: 2px; }
 .mability { font-size: 13px; color: var(--mist); font-style: italic; line-height: 1.5; padding: 8px; background: rgba(0,0,0,0.2); border-left: 3px solid var(--parchment); border-radius: 0 4px 4px 0; }
+.hp-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: -2px 0 10px; }
+.hp-btn { background: var(--stone); border: 1px solid var(--stone-light); color: var(--parchment); border-radius: 3px; font-family: var(--ft); font-size: 11px; padding: 7px 4px; cursor: pointer; }
+.hp-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+.hp-btn.damage { border-color: rgba(192,57,43,.65); color: var(--blood-bright); }
+.hp-btn.heal { border-color: rgba(76,175,80,.65); color: var(--green); }
 
 .tier-pill { display: inline-block; font-size: 9px; font-family: var(--ft); letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; margin-bottom: 8px; }
 .t-minion { background: rgba(76,175,80,.12); color: var(--green); border: 1px solid var(--green); }
@@ -746,7 +751,7 @@ function makeSupportMonster(id,statMult,minionCh){
   const pool=Math.random()*100<supportEliteChance?MONSTERS.elite:MONSTERS.minion;
   const m={...ri(pool)};
   m.hp=scaleStat(m.hp,statMult);m.atk=scaleStat(m.atk,statMult);
-  m.id=id;m.dead=false;
+  m.id=id;m.dead=false;m.currentHp=m.hp;
   return m;
 }
 
@@ -927,7 +932,7 @@ function rollRoom(){
       const boss={...NECROMANCER};
       markBossUsed(boss.name);
       boss.hp=scaleStat(boss.hp,statMult);boss.atk=scaleStat(boss.atk,statMult);
-      state.currentMonsters = [{ ...boss, id: 0, dead: false }, ...Array.from({length:supportCount},(_,i)=>makeSupportMonster(i+1,statMult,minionCh))];
+      state.currentMonsters = [{ ...boss, id: 0, dead: false, currentHp: boss.hp }, ...Array.from({length:supportCount},(_,i)=>makeSupportMonster(i+1,statMult,minionCh))];
       html=renderMonstersHTML();
       addLog('Golgotharionexis surgiu na sala 12 com '+supportCount+' criatura(s) de apoio!');
     } else if(state.mode==='cards'){
@@ -942,7 +947,7 @@ function rollRoom(){
         return;
       }
       boss.hp=scaleStat(boss.hp,statMult);boss.atk=scaleStat(boss.atk,statMult);
-      state.currentMonsters = [{ ...boss, id: 0, dead: false }, ...Array.from({length:supportCount},(_,i)=>makeSupportMonster(i+1,statMult,minionCh))];
+      state.currentMonsters = [{ ...boss, id: 0, dead: false, currentHp: boss.hp }, ...Array.from({length:supportCount},(_,i)=>makeSupportMonster(i+1,statMult,minionCh))];
       html=renderMonstersHTML();
     }
     tierUsed='boss';
@@ -965,7 +970,7 @@ function rollRoom(){
       for(let i=0;i<qty;i++){
         const pool=Math.random()*100<minionCh?MONSTERS.minion:MONSTERS.elite;
         const m={...ri(pool)};m.hp=scaleStat(m.hp,statMult);m.atk=scaleStat(m.atk,statMult);
-        m.id = i; m.dead = false;
+        m.id = i; m.dead = false; m.currentHp=m.hp;
         state.currentMonsters.push(m);
       }
       tierUsed=state.currentMonsters.some(m=>m.tier==='elite')?'elite':'minion';
@@ -1007,12 +1012,29 @@ function toggleMonsterDead(id) {
   const monster = state.currentMonsters.find(m => m.id === id);
   if (monster) {
     monster.dead = !monster.dead;
+    if(monster.currentHp===undefined)monster.currentHp=monster.hp;
+    if(monster.dead)monster.currentHp=0;
+    else if(monster.currentHp<=0)monster.currentHp=monster.hp;
     addLog(`${monster.name} foi ${monster.dead ? 'derrotado ☠' : 'revivido ✓'}.`);
     
     const el = document.getElementById('monster-area');
     if (el) el.innerHTML = renderMonstersHTML();
     updateRevealButton();
   }
+}
+
+function adjustMonsterHp(id,delta){
+  const monster=state.currentMonsters.find(m=>m.id===id);
+  if(!monster || monster.isCard)return;
+  if(monster.currentHp===undefined)monster.currentHp=monster.hp;
+  const before=monster.currentHp;
+  monster.currentHp=clamp(monster.currentHp+delta,0,monster.hp);
+  if(monster.currentHp<=0)monster.dead=true;
+  else if(monster.dead)monster.dead=false;
+  if(monster.currentHp!==before)addLog(`${monster.name}: vida ${monster.currentHp}/${monster.hp}.`);
+  const el=document.getElementById('monster-area');
+  if(el)el.innerHTML=renderMonstersHTML();
+  updateRevealButton();
 }
 
 function finishCurrentRoom(silent) {
@@ -1082,6 +1104,7 @@ function makeMonsterCard(m,idx,total,extra){
   const tierCls={minion:'t-minion',elite:'t-elite',boss:'t-boss'}[m.tier];
   const tierLabel={minion:'Lacaio',elite:'Elite',boss:'Chefe'}[m.tier];
   const num=total>1?'<div class="monster-num">MONSTRO '+idx+'/'+total+'</div>':'';
+  const currentHp=m.currentHp===undefined?m.hp:m.currentHp;
   
   const deadStyle = m.dead ? 'opacity: 0.35; filter: grayscale(50%); border-color: #333;' : '';
   const deadText = m.dead ? 'text-decoration: line-through; color: var(--mist-dim);' : '';
@@ -1101,10 +1124,16 @@ function makeMonsterCard(m,idx,total,extra){
     </div>
     ${cardImage(m,'monster-image')}
     <div class="mstats">
-      <div class="sbox"><div class="slabel">Vida</div><div class="sval hp">${m.hp}</div></div>
+      <div class="sbox"><div class="slabel">Vida</div><div class="sval hp">${currentHp}/${m.hp}</div></div>
       <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${m.atk}</div><div class="atk-type">${m.atkType || ''}</div></div>
       <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${m.defF}</div></div>
       <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${m.defM}</div></div>
+    </div>
+    <div class="hp-controls">
+      <button class="hp-btn damage" onclick="adjustMonsterHp(${m.id},-5)">-5</button>
+      <button class="hp-btn damage" onclick="adjustMonsterHp(${m.id},-1)">-1</button>
+      <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},1)">+1</button>
+      <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},5)">+5</button>
     </div>
     <div class="mability">${m.ability}</div>
   </div>`;
