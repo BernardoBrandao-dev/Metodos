@@ -674,19 +674,21 @@ function renderLootHTML(drops,roomNumber,tier){
 function getScaleParams(players,alive,rooms,threat){
   const activeHeroes=Math.max(1,alive);
   const threatStage=Math.floor(threat/25);
-  const roomStage=Math.floor(rooms/4);
+  const nextRoom=Math.min(rooms+1,MAX_ROOMS);
+  const endgameStage=nextRoom>=12?3:nextRoom>=10?2:nextRoom>=8?1:0;
   const earlyBase=Math.max(1,Math.ceil(activeHeroes/2));
   const maxCap=activeHeroes===1?4:activeHeroes*3;
-  const adjBase=Math.min(maxCap,earlyBase+Math.floor((threatStage*activeHeroes)/4)+Math.floor(roomStage/2));
-  const adjMax=Math.max(adjBase,Math.min(maxCap,earlyBase+activeHeroes+Math.ceil(((threatStage+roomStage)*activeHeroes)/3)));
+  const softCap=nextRoom<=4?Math.max(2,activeHeroes+1):maxCap;
+  const adjBase=Math.min(softCap,earlyBase+Math.floor((threatStage*activeHeroes)/5)+Math.floor(endgameStage/2));
+  const adjMax=Math.max(adjBase,Math.min(softCap,earlyBase+Math.ceil(activeHeroes/2)+Math.ceil(((threatStage+endgameStage)*activeHeroes)/3)));
   const statMult=1;
-  const bossCh=rooms>=3?Math.min(8+rooms*3+threat/6,50):0;
+  const bossCh=rooms>=5?Math.min(6+rooms*2+threat/7,35):0;
   let minionCh;
-  if(threat<20)minionCh=75;
-  else if(threat<40)minionCh=55;
-  else if(threat<60)minionCh=35;
-  else if(threat<80)minionCh=18;
-  else minionCh=5;
+  if(threat<20)minionCh=90;
+  else if(threat<40)minionCh=75;
+  else if(threat<60)minionCh=50;
+  else if(threat<80)minionCh=25;
+  else minionCh=8;
   return{baseQty:adjBase,adjMax,statMult,bossCh,minionCh};
 }
 function scaleStat(b,m){return Math.round(b*m);}
@@ -702,7 +704,8 @@ function hasLivingMonsters(){return state.currentMonsters.some(m=>!m.dead);}
 function calcThreatForRoom(roomNumber){
   const roomProgress=(clamp(roomNumber,1,MAX_ROOMS)-1)/(MAX_ROOMS-1);
   const fallen=state.players-state.playersAlive;
-  return clamp(Math.round(roomProgress*100+fallen*5),0,100);
+  const curvedProgress=Math.pow(roomProgress,1.55);
+  return clamp(Math.round(curvedProgress*100+fallen*5),0,100);
 }
 
 function syncThreatToRoom(roomNumber){
@@ -741,13 +744,13 @@ function bossSupportCount(nextRoom,threat,alive,forceNecromancer){
   const threatStage=Math.floor(threat/25);
   const base=forceNecromancer?Math.max(3,Math.ceil(activeHeroes*0.75)):Math.max(2,Math.ceil(activeHeroes/2));
   const threatBonus=Math.floor((threatStage*activeHeroes)/4);
-  const roomBonus=nextRoom>=10?Math.ceil(activeHeroes/2):nextRoom>=7?Math.ceil(activeHeroes/3):0;
-  const cap=forceNecromancer?activeHeroes+5:activeHeroes+4;
+  const roomBonus=nextRoom>=12?activeHeroes:nextRoom>=10?Math.ceil(activeHeroes/2):nextRoom>=8?Math.ceil(activeHeroes/3):0;
+  const cap=forceNecromancer?activeHeroes*2+3:activeHeroes+4;
   return Math.min(base+threatBonus+roomBonus,cap);
 }
 
 function makeSupportMonster(id,statMult,minionCh){
-  const supportEliteChance=Math.max(100-minionCh, state.threatLevel>=75?60:35);
+  const supportEliteChance=Math.max(100-minionCh, state.threatLevel>=80?65:state.threatLevel>=60?45:20);
   const pool=Math.random()*100<supportEliteChance?MONSTERS.elite:MONSTERS.minion;
   const m={...ri(pool)};
   m.hp=scaleStat(m.hp,statMult);m.atk=scaleStat(m.atk,statMult);
@@ -758,7 +761,7 @@ function makeSupportMonster(id,statMult,minionCh){
 function makeBossSupportCards(startId,count,minionCh){
   const cards=[];
   for(let i=0;i<count;i++){
-    const eliteChance=Math.max(100-minionCh, state.threatLevel>=75?60:35);
+    const eliteChance=Math.max(100-minionCh, state.threatLevel>=80?65:state.threatLevel>=60?45:20);
     const tier=Math.random()*100<eliteChance?'elite':'minion';
     cards.push({ id:startId+i, name:`Carta Fisica de Apoio ${i+1}`, tier, dead:false, isCard:true });
   }
