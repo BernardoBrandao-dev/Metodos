@@ -724,18 +724,25 @@ function getLootCount(tier){
   return Math.random()<0.25?2:1;
 }
 
+function isRepeatableLoot(item){
+  return (item.kind || '').toLowerCase().includes('consumivel');
+}
+
 function rollLoot(tier){
   const drops=[];
   const used=new Set();
+  state.usedLoot=state.usedLoot || [];
   const count=getLootCount(tier);
   const weights=LOOT_RARITY_WEIGHTS[tier] || LOOT_RARITY_WEIGHTS.minion;
   for(let i=0;i<count;i++){
     const rarity=weightedPick(weights).rarity;
-    let pool=LOOT_ITEMS.filter(item=>item.rarity===rarity && !used.has(item.name));
-    if(pool.length===0)pool=LOOT_ITEMS.filter(item=>!used.has(item.name));
+    let pool=LOOT_ITEMS.filter(item=>item.rarity===rarity && !used.has(item.name) && (isRepeatableLoot(item) || !state.usedLoot.includes(item.name)));
+    if(pool.length===0)pool=LOOT_ITEMS.filter(item=>!used.has(item.name) && (isRepeatableLoot(item) || !state.usedLoot.includes(item.name)));
+    if(pool.length===0)pool=LOOT_ITEMS.filter(item=>isRepeatableLoot(item) && !used.has(item.name));
     if(pool.length===0)pool=LOOT_ITEMS;
     const item=ri(pool);
     used.add(item.name);
+    if(!isRepeatableLoot(item) && !state.usedLoot.includes(item.name))state.usedLoot.push(item.name);
     drops.push({...item,id:i});
   }
   return drops;
@@ -786,7 +793,7 @@ function getScaleParams(players,alive,rooms,threat){
 }
 function scaleStat(b,m){return Math.round(b*m);}
 
-let state={mode:'app',players:3,playersAlive:3,playerStatus:[],heroes:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[],currentLoot:[],usedBosses:[]};
+let state={mode:'app',players:3,playersAlive:3,playerStatus:[],heroes:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[],currentLoot:[],usedBosses:[],usedLoot:[]};
 let playerState={classId:'',currentHp:0,specialCooldown:0,buffs:{atk:0,defF:0,defM:0}};
 function ri(a){return a[Math.floor(Math.random()*a.length)];}
 function rn(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
@@ -1099,7 +1106,7 @@ function startGame(){
   state.playerStatus=Array(state.players).fill(true);
   ensureHeroes(true);
   state.roomsCleared=0;state.threatLevel=0;state.totalGold=0;state.log=[];state.lastMonsterTier='minion';
-  state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
+  state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];state.usedLoot=[];
   
   setScreen('none','none','none','block','none');
   
@@ -1116,7 +1123,7 @@ function startGame(){
 
 function backToSetup(){
   setScreen('none','flex','none','none','none');
-  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);ensureHeroes(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
+  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);ensureHeroes(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];state.usedLoot=[];
   updatePreview();
 }
 
