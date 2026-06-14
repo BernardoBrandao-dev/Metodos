@@ -615,7 +615,7 @@ const HERO_CLASSES=[
 ];
 
 const ROOMS=[
-  {type:'positive',tag:'BUFF',name:'Pulso de Cura',desc:'Uma magia ancestral pulsa pela sala a cada rodada.',rule:'Toda rodada, todos curam +5 de vida.'},
+  {type:'positive',tag:'BUFF',name:'Pulso de Cura',effect:'healPulse',desc:'Uma magia ancestral pulsa pela sala a cada rodada.',rule:'Toda rodada, todos curam +5 de vida.'},
   {type:'positive',tag:'BUFF MÁGICO',name:'Benção Arcana',desc:'Uma antiga sala de pesquisa cheia de magia acumulada.',rule:'Atacantes mágicos ganham +3 de dano.'},
   {type:'positive',tag:'BUFF DEFENSIVO',name:'Bastião',desc:'Inspirados por um antigo guerreiro, todos ganham resistência.',rule:'Todos os heróis ganham +2 em cada defesa.'},
   {type:'negative',tag:'DEBUFF',name:'Miasma Sombrio',desc:'Uma névoa densa cobre a sala e envenena quem respira.',rule:'Todos aqueles que não forem mortos-vivos ficam envenenados.'},
@@ -793,7 +793,7 @@ function getScaleParams(players,alive,rooms,threat){
 }
 function scaleStat(b,m){return Math.round(b*m);}
 
-let state={mode:'app',players:3,playersAlive:3,playerStatus:[],heroes:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[],currentLoot:[],usedBosses:[],usedLoot:[]};
+let state={mode:'app',players:3,playersAlive:3,playerStatus:[],heroes:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentRoom:null,currentMonsters:[],currentLoot:[],usedBosses:[],usedLoot:[]};
 let playerState={classId:'',currentHp:0,specialCooldown:0,buffs:{atk:0,defF:0,defM:0}};
 function ri(a){return a[Math.floor(Math.random()*a.length)];}
 function rn(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
@@ -921,9 +921,9 @@ function renderPlayerSheet(){
     el.innerHTML='';
     return;
   }
-  const atk=cls.atk+playerState.buffs.atk;
-  const defF=cls.defF+playerState.buffs.defF;
-  const defM=cls.defM+playerState.buffs.defM;
+  const atk=adjustedHeroStat(cls,'atk')+playerState.buffs.atk;
+  const defF=adjustedHeroStat(cls,'defF')+playerState.buffs.defF;
+  const defM=adjustedHeroStat(cls,'defM')+playerState.buffs.defM;
   el.className='player-sheet active';
   el.innerHTML=`
     <div class="sheet-layout">
@@ -955,6 +955,7 @@ function renderPlayerSheet(){
           <strong>Funcao:</strong> ${cls.desc}<br>
           <strong>Especial:</strong> ${cls.special}
         </div>
+        ${roomEffectNote(cls,'hero')}
         <button class="action-btn ${playerState.specialCooldown>0?'btn-gray':'btn-red'}" onclick="togglePlayerSpecial()" style="margin-bottom:10px;">
           ${playerState.specialCooldown>0?'Recarregar especial - '+playerState.specialCooldown+' turno(s)':'Usar habilidade especial'}
         </button>
@@ -977,6 +978,96 @@ function playerBuffBox(stat,label,value){
     <div class="buff-controls">
       <button class="hp-btn damage" onclick="adjustPlayerBuff('${stat}',-1)">-1</button>
       <button class="hp-btn heal" onclick="adjustPlayerBuff('${stat}',1)">+1</button>
+    </div>
+  </div>`;
+}
+
+function ensureMonsterBuffs(monster){
+  if(!monster.buffs)monster.buffs={atk:0,defF:0,defM:0};
+  return monster.buffs;
+}
+
+function cleanText(text){
+  return (text || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+
+function hasMagicAttack(entity){
+  const type=cleanText(entity.atkType);
+  return type.includes('magico') || /m.{0,3}gico/.test(type);
+}
+
+function currentRoomName(){
+  return cleanText(state.currentRoom?.name);
+}
+
+function currentRoomEffect(){
+  if(state.currentRoom?.effect)return state.currentRoom.effect;
+  const room=currentRoomName();
+  if(room.includes('arcana'))return 'arcaneBlessing';
+  if(room.includes('basti'))return 'bastion';
+  if(room.includes('horda'))return 'hordeFury';
+  if(room.includes('fraqueza'))return 'weaknessCurse';
+  if(room.includes('trap'))return 'trickRoom';
+  if(room.includes('barbar') || room.includes('rbar') || room.includes('cant') || room.includes('ntico'))return 'barbarianChant';
+  if(room.includes('cura'))return 'healPulse';
+  return '';
+}
+
+function livingAppMonsters(){
+  return state.currentMonsters.filter(m=>!m.dead && !m.isCard).length;
+}
+
+function roomBaseStat(entity,stat){
+  if(currentRoomEffect()==='trickRoom'){
+    if(stat==='defF')return entity.defM || 0;
+    if(stat==='defM')return entity.defF || 0;
+  }
+  return entity[stat] || 0;
+}
+
+function roomStatDelta(entity,stat,side){
+  const room=currentRoomEffect();
+  let delta=0;
+  if(stat==='atk'){
+    if(room==='arcaneBlessing' && hasMagicAttack(entity))delta+=3;
+    if(room==='hordeFury' && side==='monster')delta+=livingAppMonsters()*2;
+    if(room==='weaknessCurse')delta-=2;
+    if(room==='barbarianChant')delta+=2;
+  }
+  if((stat==='defF' || stat==='defM') && side==='hero' && room==='bastion')delta+=2;
+  if((stat==='defF' || stat==='defM') && room==='barbarianChant')delta-=2;
+  return delta;
+}
+
+function adjustedMonsterStat(monster,stat){
+  const buffs=ensureMonsterBuffs(monster);
+  return roomBaseStat(monster,stat) + (buffs[stat] || 0) + roomStatDelta(monster,stat,'monster');
+}
+
+function adjustedHeroStat(cls,stat){
+  return roomBaseStat(cls,stat) + roomStatDelta(cls,stat,'hero');
+}
+
+function roomEffectNote(entity,side){
+  const room=currentRoomEffect();
+  if(!room)return '';
+  const notes=[];
+  if(room==='arcaneBlessing' && hasMagicAttack(entity))notes.push('+3 ATQ magico da sala');
+  if(room==='hordeFury' && side==='monster')notes.push('+'+(livingAppMonsters()*2)+' ATQ da horda');
+  if(room==='weaknessCurse')notes.push('-2 ATQ da sala');
+  if(room==='barbarianChant')notes.push('+2 ATQ, -2 DEF da sala');
+  if(room==='bastion' && side==='hero')notes.push('+2 DEF da sala');
+  if(room==='trickRoom')notes.push('DEF F/DEF M invertidas');
+  return notes.length?`<div class="card-note">Efeito automatico: ${notes.join(' | ')}</div>`:'';
+}
+
+function monsterBuffBox(id,stat,label,value){
+  return `<div class="buff-box">
+    <div class="slabel">${label}</div>
+    <div class="sval ${stat==='atk'?'atk':'def'}">${value>=0?'+':''}${value}</div>
+    <div class="buff-controls">
+      <button class="hp-btn damage" onclick="adjustMonsterBuff(${id},'${stat}',-1)">-1</button>
+      <button class="hp-btn heal" onclick="adjustMonsterBuff(${id},'${stat}',1)">+1</button>
     </div>
   </div>`;
 }
@@ -1106,7 +1197,7 @@ function startGame(){
   state.playerStatus=Array(state.players).fill(true);
   ensureHeroes(true);
   state.roomsCleared=0;state.threatLevel=0;state.totalGold=0;state.log=[];state.lastMonsterTier='minion';
-  state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];state.usedLoot=[];
+  state.currentRoom=null;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];state.usedLoot=[];
   
   setScreen('none','none','none','block','none');
   
@@ -1123,7 +1214,7 @@ function startGame(){
 
 function backToSetup(){
   setScreen('none','flex','none','none','none');
-  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);ensureHeroes(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];state.usedLoot=[];
+  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);ensureHeroes(true);state.roomsCleared=0;state.threatLevel=0;state.currentRoom=null;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];state.usedLoot=[];
   updatePreview();
 }
 
@@ -1190,6 +1281,7 @@ function rollRoom(){
   syncThreatToRoom(nextRoom);
   const{adjMax,baseQty,statMult,bossCh,minionCh}=getScaleParams(state.players,state.playersAlive,state.roomsCleared,state.threatLevel);
   const room=ri(ROOMS);
+  state.currentRoom=room;
   const roomTag=room.tag || {positive:'Benção',negative:'Maldição',neutral:'Neutro'}[room.type];
   document.getElementById('room-area').innerHTML=`
     <div class="effect-card ${room.type}">
@@ -1317,12 +1409,23 @@ function adjustMonsterHp(id,delta){
   updateRevealButton();
 }
 
+function adjustMonsterBuff(id,stat,delta){
+  const monster=state.currentMonsters.find(m=>m.id===id);
+  if(!monster || monster.isCard)return;
+  const buffs=ensureMonsterBuffs(monster);
+  buffs[stat]=clamp((buffs[stat] || 0)+delta,-9,9);
+  addLog(`${monster.name}: ${stat==='atk'?'ATQ':stat==='defF'?'DEF F':'DEF M'} ${buffs[stat]>=0?'+':''}${buffs[stat]}.`);
+  const el=document.getElementById('monster-area');
+  if(el)el.innerHTML=renderMonstersHTML();
+}
+
 function finishCurrentRoom(silent) {
   if(state.roomsCleared>=MAX_ROOMS)return;
   const lootTier=state.lastMonsterTier;
   const drops=rollLoot(lootTier);
   state.currentLoot=drops;
   state.roomsCleared++;
+  state.currentRoom=null;
   syncThreatToRoom(Math.min(state.roomsCleared+1,MAX_ROOMS));
   const lootNames=drops.map(item=>item.name).join(', ');
   if(silent)addLog(`Sala ${state.roomsCleared} limpa automaticamente. Loot: ${lootNames}.`);
@@ -1335,6 +1438,7 @@ function finishCurrentRoom(silent) {
   updateRevealButton();
   
   if(!silent) {
+    document.getElementById('room-area').innerHTML = '';
     document.getElementById('monster-area').innerHTML = renderLootHTML(drops,state.roomsCleared,lootTier);
   }
 }
@@ -1385,6 +1489,10 @@ function makeMonsterCard(m,idx,total,extra){
   const tierLabel={minion:'Lacaio',elite:'Elite',boss:'Chefe'}[m.tier];
   const num=total>1?'<div class="monster-num">MONSTRO '+idx+'/'+total+'</div>':'';
   const currentHp=m.currentHp===undefined?m.hp:m.currentHp;
+  const buffs=ensureMonsterBuffs(m);
+  const atk=adjustedMonsterStat(m,'atk');
+  const defF=adjustedMonsterStat(m,'defF');
+  const defM=adjustedMonsterStat(m,'defM');
   
   const deadStyle = m.dead ? 'opacity: 0.35; filter: grayscale(50%); border-color: #333;' : '';
   const deadText = m.dead ? 'text-decoration: line-through; color: var(--mist-dim);' : '';
@@ -1405,9 +1513,9 @@ function makeMonsterCard(m,idx,total,extra){
     ${cardImage(m,'monster-image')}
     <div class="mstats">
       <div class="sbox"><div class="slabel">Vida</div><div class="sval hp">${currentHp}/${m.hp}</div></div>
-      <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${m.atk}</div><div class="atk-type">${m.atkType || ''}</div></div>
-      <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${m.defF}</div></div>
-      <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${m.defM}</div></div>
+      <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${atk}</div><div class="atk-type">${m.atkType || ''}</div></div>
+      <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${defF}</div></div>
+      <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${defM}</div></div>
     </div>
     <div class="hp-controls">
       <button class="hp-btn damage" onclick="adjustMonsterHp(${m.id},-5)">-5</button>
@@ -1415,6 +1523,13 @@ function makeMonsterCard(m,idx,total,extra){
       <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},1)">+1</button>
       <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},5)">+5</button>
     </div>
+    <div class="setup-label" style="margin-bottom:6px;">Buffs / Debuffs</div>
+    <div class="buff-grid">
+      ${monsterBuffBox(m.id,'atk','ATQ',buffs.atk)}
+      ${monsterBuffBox(m.id,'defF','DEF F',buffs.defF)}
+      ${monsterBuffBox(m.id,'defM','DEF M',buffs.defM)}
+    </div>
+    ${roomEffectNote(m,'monster')}
     <div class="mability">${m.ability}</div>
   </div>`;
 }
@@ -1426,6 +1541,9 @@ function renderLives(){
     const cls=heroClassById(hero.classId);
     const alive=hero.alive!==false;
     const currentHp=cls?clamp(hero.currentHp,0,cls.hp):0;
+    const atk=cls?adjustedHeroStat(cls,'atk'):0;
+    const defF=cls?adjustedHeroStat(cls,'defF'):0;
+    const defM=cls?adjustedHeroStat(cls,'defM'):0;
     return `<div class="hero-card ${alive?'':'dead'}">
       <div class="hero-head">
         <div>
@@ -1444,10 +1562,11 @@ function renderLives(){
         <div class="hero-desc"><strong>Funcao:</strong> ${cls.desc}<br><strong>Especial:</strong> ${cls.special}</div>
         <div class="hero-stats">
           <div class="sbox"><div class="slabel">Vida</div><div class="sval hp">${currentHp}/${cls.hp}</div></div>
-          <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${cls.atk}</div><div class="atk-type">${cls.atkType}</div></div>
-          <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${cls.defF}</div></div>
-          <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${cls.defM}</div></div>
+          <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${atk}</div><div class="atk-type">${cls.atkType}</div></div>
+          <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${defF}</div></div>
+          <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${defM}</div></div>
         </div>
+        ${roomEffectNote(cls,'hero')}
         <div class="hero-actions">
           <button class="hp-btn damage" onclick="adjustHeroHp(${i},-5)">-5</button>
           <button class="hp-btn damage" onclick="adjustHeroHp(${i},-1)">-1</button>
