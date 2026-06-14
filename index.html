@@ -66,11 +66,23 @@ html, body {
 .h-skull { font-family: var(--ft); font-size: 16px; color: var(--mist); letter-spacing: 1px; flex-shrink: 0; }
 
 /* TELAS PRINCIPAIS */
-#setup-screen {
+#role-screen,
+#player-screen {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
   display: flex;
+  flex-direction: column;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+#setup-screen {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: none;
   flex-direction: column;
   max-width: 800px;
   margin: 0 auto;
@@ -233,6 +245,29 @@ html, body {
 
 .start-btn { width: 100%; padding: 16px; background: var(--blood); border: 1px solid var(--blood-bright); border-radius: 3px; color: var(--parch-light); font-family: var(--ft); font-size: 14px; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; transition: all .2s; margin-top: auto; }
 .start-btn:hover { background: var(--blood-bright); }
+.role-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 18px 0; }
+@media(min-width:640px){ .role-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.role-card-btn { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 4px; padding: 18px; text-align: left; cursor: pointer; color: var(--mist); transition: all .2s; }
+.role-card-btn:hover { border-color: var(--gold); background: rgba(212,160,23,.08); }
+.role-card-title { font-family: var(--ft); color: var(--gold-light); font-size: 18px; letter-spacing: 1px; margin-bottom: 6px; }
+.role-card-copy { font-size: 13px; line-height: 1.45; font-style: italic; }
+.player-class-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px; }
+@media(min-width:620px){ .player-class-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media(min-width:900px){ .player-class-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.player-class-btn { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 4px; padding: 10px; cursor: pointer; color: var(--mist); text-align: left; transition: all .2s; }
+.player-class-btn:hover { border-color: var(--gold); background: rgba(212,160,23,.07); }
+.player-class-images { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+.player-sheet { display: none; }
+.player-sheet.active { display: block; }
+.sheet-layout { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media(min-width:760px){ .sheet-layout { grid-template-columns: 280px minmax(0, 1fr); } }
+.sheet-side, .sheet-main { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 4px; padding: 12px; }
+.sheet-portrait-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sheet-special { font-size: 13px; color: var(--parchment); line-height: 1.5; padding: 10px; background: rgba(0,0,0,.22); border-left: 3px solid var(--gold); border-radius: 0 4px 4px 0; margin-bottom: 10px; }
+.buff-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
+@media(min-width:560px){ .buff-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.buff-box { background: var(--stone); border: 1px solid var(--stone-light); border-radius: 3px; padding: 10px; text-align: center; }
+.buff-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 8px; }
 
 /* STATUS GRID NO GAME */
 .status-bar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; flex-shrink: 0; }
@@ -341,6 +376,24 @@ html, body {
 @media(min-width:480px){ .lives-grid { grid-template-columns: repeat(6, 1fr); } }
 .life-btn { padding: 12px 4px; border: 1px solid var(--green); border-radius: 3px; background: rgba(76,175,80,.1); color: var(--green); font-family: var(--ft); font-size: 11px; cursor: pointer; text-align: center; transition: all .2s; line-height: 1.5; }
 .life-btn.dead { border-color: var(--blood-bright); background: rgba(192,57,43,.1); color: var(--blood-bright); }
+.hero-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; flex-shrink: 0; }
+@media(min-width:720px){ .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.hero-card { background: var(--stone-mid); border: 1px solid var(--stone-light); border-radius: 3px; padding: 12px; }
+.hero-card.dead { opacity: .55; border-color: var(--blood-bright); background: linear-gradient(180deg, var(--stone-mid), rgba(80,20,20,.28)); }
+.hero-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.hero-title { font-family: var(--ft); font-size: 15px; color: var(--parch-light); letter-spacing: 1px; }
+.hero-status { font-family: var(--ft); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; border: 1px solid var(--green); color: var(--green); background: rgba(76,175,80,.1); white-space: nowrap; }
+.hero-status.dead { border-color: var(--blood-bright); color: var(--blood-bright); background: rgba(192,57,43,.12); }
+.hero-class-select { width: 100%; background: var(--stone); color: var(--parch-light); border: 1px solid var(--stone-light); border-radius: 3px; padding: 9px 10px; font-family: var(--ft); font-size: 12px; letter-spacing: .5px; margin-bottom: 10px; }
+.hero-class-select:focus { outline: none; border-color: var(--gold); }
+.hero-desc { min-height: 34px; color: var(--mist); font-size: 12px; line-height: 1.45; font-style: italic; margin-bottom: 10px; }
+.hero-images { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+.hero-image { width: 100%; aspect-ratio: 3 / 4; object-fit: contain; object-position: center; border: 1px solid var(--gold); border-radius: 3px; background: var(--stone); display: block; }
+.hero-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 10px; }
+.hero-empty { color: var(--mist-dim); font-size: 12px; font-style: italic; padding: 8px; background: rgba(0,0,0,.16); border-radius: 3px; margin-bottom: 10px; }
+.hero-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 8px; }
+.hero-toggle { width: 100%; background: transparent; border: 1px solid var(--mist-dim); color: var(--mist); border-radius: 3px; font-family: var(--ft); font-size: 10px; letter-spacing: 1px; padding: 8px; cursor: pointer; text-transform: uppercase; }
+.hero-toggle:hover { border-color: var(--gold); color: var(--gold-light); }
 
 .log-item { font-size: 13px; color: var(--mist); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-style: italic; }
 .log-time { color: var(--gold); font-family: var(--ft); font-size: 10px; margin-right: 4px; }
@@ -373,6 +426,37 @@ html, body {
       <div class="hsub">Mestre Virtual - V6</div>
     </div>
     <div class="h-skull">[ DM ]</div>
+  </div>
+
+  <div id="role-screen">
+    <div style="padding:10px 0; text-align:center;">
+      <div style="font-family:var(--ft); font-size:18px; color:var(--gold-light); letter-spacing:2px; margin-bottom:4px;">Escolha seu Perfil</div>
+      <div style="font-size:13px; color:var(--mist); font-style:italic;">Entre como mestre da masmorra ou como jogador com ficha propria</div>
+    </div>
+    <div class="divider"></div>
+    <div class="role-grid">
+      <button class="role-card-btn" onclick="chooseRole('master')">
+        <div class="role-card-title">Mestre</div>
+        <div class="role-card-copy">Controla salas, monstros, loot, herois da party e dificuldade da sessao.</div>
+      </button>
+      <button class="role-card-btn" onclick="chooseRole('player')">
+        <div class="role-card-title">Jogador</div>
+        <div class="role-card-copy">Escolhe uma classe, abre a ficha individual e controla PV, especial e buffs.</div>
+      </button>
+    </div>
+  </div>
+
+  <div id="player-screen" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;">
+      <div>
+        <div style="font-family:var(--ft); font-size:16px; color:var(--gold-light); letter-spacing:2px; margin-bottom:4px;">Ficha do Jogador</div>
+        <div style="font-size:13px; color:var(--mist); font-style:italic;">Escolha sua classe e use esta ficha durante a aventura.</div>
+      </div>
+      <button class="hero-toggle" onclick="showRoleScreen()" style="width:auto;min-width:86px;">Voltar</button>
+    </div>
+    <div class="divider"></div>
+    <div id="player-class-picker"></div>
+    <div id="player-sheet" class="player-sheet"></div>
   </div>
 
   <div id="setup-screen">
@@ -408,6 +492,7 @@ html, body {
     <div class="setup-preview" id="preview-box"></div>
     
     <button class="start-btn" onclick="startGame()">Adentrar a Masmorra</button>
+    <button class="action-btn btn-gray" onclick="showRoleScreen()" style="font-size:11px; margin-top:10px;">Voltar para Perfil</button>
     <p class="hint">A dificuldade escala com as salas e os heróis vivos</p>
   </div>
 
@@ -419,7 +504,7 @@ html, body {
         <div class="sb-divider"></div>
         <div class="sidebar-section">Navegação</div>
         <button class="sidebar-nav-btn active" id="sb-nav-monsters" onclick="deskTab('monsters',this)">Sala e Monstros</button>
-        <button class="sidebar-nav-btn" id="sb-nav-party" onclick="deskTab('party',this)">Party</button>
+        <button class="sidebar-nav-btn" id="sb-nav-party" onclick="deskTab('party',this)">Herois</button>
         <button class="sidebar-nav-btn" id="sb-nav-log" onclick="deskTab('log',this)">Log</button>
         <div class="sb-divider"></div>
         <div class="sidebar-section">Status Atual</div>
@@ -431,7 +516,7 @@ html, body {
       <div class="main-content">
         <div class="tabs">
           <button class="tab active" id="m-tab-monsters" onclick="switchTab('monsters')">Sala</button>
-          <button class="tab" id="m-tab-party" onclick="switchTab('party')">Party</button>
+          <button class="tab" id="m-tab-party" onclick="switchTab('party')">Herois</button>
           <button class="tab" id="m-tab-log" onclick="switchTab('log')">Log</button>
         </div>
 
@@ -450,8 +535,8 @@ html, body {
         </div>
 
         <div id="tab-party" class="panel">
-          <div class="section-title">Estado da Party</div>
-          <div style="font-size:12px; color:var(--mist); font-style:italic; margin-bottom:12px;">Marque os heróis que caíram. Isso ajusta a dificuldade dinamicamente.</div>
+          <div class="section-title">Herois da Party</div>
+          <div style="font-size:12px; color:var(--mist); font-style:italic; margin-bottom:12px;">Escolha as classes dos jogadores e controle vida, ataque e defesas durante o combate.</div>
           <div class="lives-grid" id="lives-grid"></div>
           <div class="divider"></div>
           <div class="setup-label">Impacto Atual do Grupo</div>
@@ -520,6 +605,14 @@ const MONSTERS={
 const FINAL_BOSS_NAMES=['Golgotharionexis'];
 const NECROMANCER={name:'Golgotharionexis',type:'Resistente a mágico; vulnerável a físico/sagrado.',tier:'boss',hp:36,atk:8,atkType:'mágico',defF:2,defM:5,ability:'Invocar Morto: invoca um zumbi com metade do PV. Recarga 2. Passiva: enquanto houver zumbi em campo, recebe -2 de dano.'};
 const MAX_ROOMS=12;
+const HERO_CLASSES=[
+  {id:'guerreiro',name:'Guerreiro',hp:24,atk:6,atkType:'fisico',defF:4,defM:2,images:['assets/herois/guerreira.png','assets/herois/guerreiro.png'],desc:'Tanque equilibrado e protetor do grupo.',special:'Postura Defensiva: causa 5 de dano fisico e ganha +2 Defesa Fisica ate o proximo turno.'},
+  {id:'feiticeiro',name:'Feiticeiro',hp:16,atk:7,atkType:'magico',defF:1,defM:4,images:['assets/herois/feiticeira.png','assets/herois/feiticeiro.png'],desc:'Dano magico alto e controle de alvos.',special:'Explosao Arcana: causa 9 de dano magico em um alvo ou 5 de dano magico em dois alvos.'},
+  {id:'brutamonte',name:'Brutamonte',hp:28,atk:7,atkType:'fisico',defF:3,defM:1,images:['assets/herois/brutamonte-1.png','assets/herois/brutamonte-2.png'],desc:'Dano bruto e muita vida.',special:'Furia Selvagem: causa 10 de dano fisico, mas fica com -1 Defesa Fisica ate o proximo turno.'},
+  {id:'bardo',name:'Bardo',hp:20,atk:5,atkType:'magico',defF:2,defM:3,images:['assets/herois/bardo.png','assets/herois/barda.png'],desc:'Buffs, apoio e controle de ritmo.',special:'Cancao Inspiradora: um aliado ganha +3 no proximo ataque e recupera 2 PV.'},
+  {id:'arqueiro',name:'Arqueiro',hp:18,atk:6,atkType:'fisico',defF:2,defM:2,images:['assets/herois/arqueiro.png','assets/herois/arqueira.png'],desc:'Dano preciso e perfuracao de defesa.',special:'Tiro Preciso: causa 8 de dano fisico e ignora 2 pontos de Defesa Fisica.'},
+  {id:'clerigo',name:'Clerigo',hp:22,atk:5,atkType:'magico',defF:3,defM:4,images:['assets/herois/cleriga.png','assets/herois/clerigo.png'],desc:'Suporte, cura e protecao.',special:'Luz Restauradora: cura 7 PV de um aliado ou causa 7 de dano magico em morto-vivo/sombrio.'}
+];
 
 const ROOMS=[
   {type:'positive',tag:'BUFF',name:'Pulso de Cura',desc:'Uma magia ancestral pulsa pela sala a cada rodada.',rule:'Toda rodada, todos curam +5 de vida.'},
@@ -678,7 +771,7 @@ function getScaleParams(players,alive,rooms,threat){
   const endgameStage=nextRoom>=12?3:nextRoom>=10?2:nextRoom>=8?1:0;
   const earlyBase=Math.max(1,Math.ceil(activeHeroes/2));
   const maxCap=activeHeroes===1?4:activeHeroes*3;
-  const softCap=nextRoom<=4?Math.max(2,activeHeroes+1):maxCap;
+  const softCap=nextRoom<=4?Math.max(1,activeHeroes):maxCap;
   const adjBase=Math.min(softCap,earlyBase+Math.floor((threatStage*activeHeroes)/5)+Math.floor(endgameStage/2));
   const adjMax=Math.max(adjBase,Math.min(softCap,earlyBase+Math.ceil(activeHeroes/2)+Math.ceil(((threatStage+endgameStage)*activeHeroes)/3)));
   const statMult=1;
@@ -693,13 +786,193 @@ function getScaleParams(players,alive,rooms,threat){
 }
 function scaleStat(b,m){return Math.round(b*m);}
 
-let state={mode:'app',players:3,playersAlive:3,playerStatus:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[],currentLoot:[],usedBosses:[]};
+let state={mode:'app',players:3,playersAlive:3,playerStatus:[],heroes:[],roomsCleared:0,totalGold:0,threatLevel:0,log:[],lastMonsterTier:'minion',currentMonsters:[],currentLoot:[],usedBosses:[]};
+let playerState={classId:'',currentHp:0,specialCooldown:0,buffs:{atk:0,defF:0,defM:0}};
 function ri(a){return a[Math.floor(Math.random()*a.length)];}
 function rn(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
 function threatColor(t){return t<33?'var(--green)':t<66?'var(--gold-light)':'var(--blood-bright)';}
 function allCurrentMonstersDead(){return state.currentMonsters.length>0 && state.currentMonsters.every(m=>m.dead);}
 function hasLivingMonsters(){return state.currentMonsters.some(m=>!m.dead);}
+function heroClassById(id){return HERO_CLASSES.find(c=>c.id===id) || null;}
+function makeHeroSlot(i,previous){
+  const classId=previous?.classId || '';
+  const cls=heroClassById(classId);
+  const maxHp=cls?cls.hp:0;
+  const currentHp=cls?clamp(previous?.currentHp ?? maxHp,0,maxHp):0;
+  return {classId,currentHp,alive:previous?.alive ?? true};
+}
+function ensureHeroes(resetHp){
+  const prev=state.heroes || [];
+  state.heroes=Array.from({length:state.players},(_,i)=>resetHp?makeHeroSlot(i,{classId:prev[i]?.classId}):makeHeroSlot(i,prev[i]));
+  state.playerStatus=Array.from({length:state.players},(_,i)=>state.heroes[i]?.alive!==false);
+  state.playersAlive=state.playerStatus.filter(Boolean).length;
+}
+function countHeroClass(classId,exceptIndex){
+  return state.heroes.filter((h,i)=>i!==exceptIndex && h.classId===classId).length;
+}
+function heroClassOptions(selectedClassId,heroIndex){
+  return '<option value="">Escolher classe</option>'+HERO_CLASSES.map(c=>{
+    const locked=countHeroClass(c.id,heroIndex)>=2 && selectedClassId!==c.id;
+    return `<option value="${c.id}" ${selectedClassId===c.id?'selected':''} ${locked?'disabled':''}>${c.name}${locked?' - limite':''}</option>`;
+  }).join('');
+}
+
+function setScreen(role,setup,player,game,victory){
+  document.getElementById('role-screen').style.display=role;
+  document.getElementById('setup-screen').style.display=setup;
+  document.getElementById('player-screen').style.display=player;
+  document.getElementById('game-screen').style.display=game;
+  document.getElementById('victory-screen').style.display=victory;
+}
+
+function showRoleScreen(){
+  setScreen('flex','none','none','none','none');
+}
+
+function chooseRole(role){
+  if(role==='master'){
+    setScreen('none','flex','none','none','none');
+    updatePreview();
+    return;
+  }
+  setScreen('none','none','flex','none','none');
+  renderPlayerClassPicker();
+  renderPlayerSheet();
+}
+
+function renderHeroImages(cls,extraClass){
+  return cls.images.map(src=>`<img class="${extraClass}" src="${src}" alt="${cls.name}" loading="lazy" onerror="this.style.display='none'">`).join('');
+}
+
+function renderPlayerClassPicker(){
+  const el=document.getElementById('player-class-picker');
+  if(!el)return;
+  el.style.display='block';
+  el.innerHTML=`
+    <div class="setup-label">Escolha sua Classe</div>
+    <div class="player-class-grid">
+      ${HERO_CLASSES.map(cls=>`
+        <button class="player-class-btn" onclick="choosePlayerClass('${cls.id}')">
+          <div class="player-class-images">${renderHeroImages(cls,'hero-image')}</div>
+          <div class="hero-title">${cls.name}</div>
+          <div class="monster-type">${cls.desc}</div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function showPlayerClassPicker(){
+  renderPlayerClassPicker();
+}
+
+function choosePlayerClass(classId){
+  const cls=heroClassById(classId);
+  if(!cls)return;
+  playerState={classId,currentHp:cls.hp,specialCooldown:0,buffs:{atk:0,defF:0,defM:0}};
+  const picker=document.getElementById('player-class-picker');
+  if(picker)picker.style.display='none';
+  renderPlayerSheet();
+}
+
+function playerClass(){
+  return heroClassById(playerState.classId);
+}
+
+function adjustPlayerHp(delta){
+  const cls=playerClass();
+  if(!cls)return;
+  playerState.currentHp=clamp(playerState.currentHp+delta,0,cls.hp);
+  renderPlayerSheet();
+}
+
+function adjustPlayerBuff(stat,delta){
+  if(!playerState.buffs[stat] && playerState.buffs[stat]!==0)return;
+  playerState.buffs[stat]=clamp(playerState.buffs[stat]+delta,-9,9);
+  renderPlayerSheet();
+}
+
+function resetPlayerBuffs(){
+  playerState.buffs={atk:0,defF:0,defM:0};
+  renderPlayerSheet();
+}
+
+function togglePlayerSpecial(){
+  if(!playerClass())return;
+  if(playerState.specialCooldown>0)playerState.specialCooldown--;
+  else playerState.specialCooldown=2;
+  renderPlayerSheet();
+}
+
+function renderPlayerSheet(){
+  const el=document.getElementById('player-sheet');
+  if(!el)return;
+  const cls=playerClass();
+  if(!cls){
+    el.className='player-sheet';
+    el.innerHTML='';
+    return;
+  }
+  const atk=cls.atk+playerState.buffs.atk;
+  const defF=cls.defF+playerState.buffs.defF;
+  const defM=cls.defM+playerState.buffs.defM;
+  el.className='player-sheet active';
+  el.innerHTML=`
+    <div class="sheet-layout">
+      <div class="sheet-side">
+        <div class="hero-head">
+          <div>
+            <div class="monster-num">FICHA</div>
+            <div class="hero-title">${cls.name}</div>
+          </div>
+          <span class="hero-status ${playerState.currentHp>0?'':'dead'}">${playerState.currentHp>0?'Vivo':'Caiu'}</span>
+        </div>
+        <div class="sheet-portrait-grid">${renderHeroImages(cls,'hero-image')}</div>
+        <button class="hero-toggle" onclick="showPlayerClassPicker()" style="margin-top:10px;">Trocar classe</button>
+      </div>
+      <div class="sheet-main">
+        <div class="hero-stats">
+          <div class="sbox"><div class="slabel">PV</div><div class="sval hp">${playerState.currentHp}/${cls.hp}</div></div>
+          <div class="sbox"><div class="slabel">ATQ</div><div class="sval atk">${atk}</div><div class="atk-type">${cls.atkType}</div></div>
+          <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${defF}</div></div>
+          <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${defM}</div></div>
+        </div>
+        <div class="hero-actions">
+          <button class="hp-btn damage" onclick="adjustPlayerHp(-5)">-5 PV</button>
+          <button class="hp-btn damage" onclick="adjustPlayerHp(-1)">-1 PV</button>
+          <button class="hp-btn heal" onclick="adjustPlayerHp(1)">+1 PV</button>
+          <button class="hp-btn heal" onclick="adjustPlayerHp(5)">+5 PV</button>
+        </div>
+        <div class="sheet-special">
+          <strong>Funcao:</strong> ${cls.desc}<br>
+          <strong>Especial:</strong> ${cls.special}
+        </div>
+        <button class="action-btn ${playerState.specialCooldown>0?'btn-gray':'btn-red'}" onclick="togglePlayerSpecial()" style="margin-bottom:10px;">
+          ${playerState.specialCooldown>0?'Recarregar especial - '+playerState.specialCooldown+' turno(s)':'Usar habilidade especial'}
+        </button>
+        <div class="setup-label">Buffs</div>
+        <div class="buff-grid">
+          ${playerBuffBox('atk','ATQ',playerState.buffs.atk)}
+          ${playerBuffBox('defF','DEF F',playerState.buffs.defF)}
+          ${playerBuffBox('defM','DEF M',playerState.buffs.defM)}
+        </div>
+        <button class="hero-toggle" onclick="resetPlayerBuffs()">Zerar buffs</button>
+      </div>
+    </div>
+  `;
+}
+
+function playerBuffBox(stat,label,value){
+  return `<div class="buff-box">
+    <div class="slabel">${label}</div>
+    <div class="sval ${stat==='atk'?'atk':'def'}">${value>=0?'+':''}${value}</div>
+    <div class="buff-controls">
+      <button class="hp-btn damage" onclick="adjustPlayerBuff('${stat}',-1)">-1</button>
+      <button class="hp-btn heal" onclick="adjustPlayerBuff('${stat}',1)">+1</button>
+    </div>
+  </div>`;
+}
 
 function calcThreatForRoom(roomNumber){
   const roomProgress=(clamp(roomNumber,1,MAX_ROOMS)-1)/(MAX_ROOMS-1);
@@ -794,6 +1067,7 @@ function setMode(m,btn){
 
 function selectPlayers(n,btn){
   state.players=n;
+  ensureHeroes(false);
   document.querySelectorAll('.player-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   updatePreview();
@@ -803,6 +1077,7 @@ function updatePreview(){
   const p=state.players;
   state.playersAlive=state.players;
   state.playerStatus=Array(p).fill(true);
+  ensureHeroes(false);
   
   const {baseQty, adjMax, statMult} = getScaleParams(p, p, state.roomsCleared, state.threatLevel);
   const modeLabel=state.mode==='app'?'App mostra stats completos':'App diz quantas cartas tirar';
@@ -822,12 +1097,11 @@ function updatePreview(){
 function startGame(){
   state.playersAlive=state.players;
   state.playerStatus=Array(state.players).fill(true);
+  ensureHeroes(true);
   state.roomsCleared=0;state.threatLevel=0;state.totalGold=0;state.log=[];state.lastMonsterTier='minion';
   state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
   
-  document.getElementById('setup-screen').style.display='none';
-  document.getElementById('game-screen').style.display='block';
-  document.getElementById('victory-screen').style.display='none';
+  setScreen('none','none','none','block','none');
   
   document.getElementById('monster-area').innerHTML='<div class="empty-state">Pressione Entrar na Primeira Sala para comecar...</div>';
   document.getElementById('room-area').innerHTML='';
@@ -841,10 +1115,8 @@ function startGame(){
 }
 
 function backToSetup(){
-  document.getElementById('setup-screen').style.display='block';
-  document.getElementById('game-screen').style.display='none';
-  document.getElementById('victory-screen').style.display='none';
-  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
+  setScreen('none','flex','none','none','none');
+  state.playersAlive=state.players;state.playerStatus=Array(state.players).fill(true);ensureHeroes(true);state.roomsCleared=0;state.threatLevel=0;state.currentMonsters=[];state.currentLoot=[];state.usedBosses=[];
   updatePreview();
 }
 
@@ -856,9 +1128,7 @@ function showVictoryScreen(){
     <div class="victory-stat"><div class="victory-stat-label">Ameaca</div><div class="victory-stat-val">${Math.round(state.threatLevel)}%</div></div>
     <div class="victory-stat"><div class="victory-stat-label">Loot Final</div><div class="victory-stat-val">${state.currentLoot.length}</div></div>
   `;
-  document.getElementById('setup-screen').style.display='none';
-  document.getElementById('game-screen').style.display='none';
-  document.getElementById('victory-screen').style.display='block';
+  setScreen('none','none','none','none','block');
 }
 
 function renderStatus(){
@@ -1143,16 +1413,93 @@ function makeMonsterCard(m,idx,total,extra){
 }
 
 function renderLives(){
-  document.getElementById('lives-grid').innerHTML=state.playerStatus.map((alive,i)=>`
-    <button class="life-btn ${alive?'':'dead'}" onclick="togglePlayer(${i})">
-      <div style="font-size:clamp(9px,2.5vw,11px);">Heroi ${i+1}</div>
-      <div style="font-size:clamp(10px,2.8vw,12px);margin-top:2px;">${alive?'Vivo':'Caiu'}</div>
-    </button>`).join('');
+  ensureHeroes(false);
+  document.getElementById('lives-grid').className='hero-grid';
+  document.getElementById('lives-grid').innerHTML=state.heroes.map((hero,i)=>{
+    const cls=heroClassById(hero.classId);
+    const alive=hero.alive!==false;
+    const currentHp=cls?clamp(hero.currentHp,0,cls.hp):0;
+    return `<div class="hero-card ${alive?'':'dead'}">
+      <div class="hero-head">
+        <div>
+          <div class="monster-num">JOGADOR ${i+1}/${state.players}</div>
+          <div class="hero-title">Heroi ${i+1}</div>
+        </div>
+        <span class="hero-status ${alive?'':'dead'}">${alive?'Vivo':'Caiu'}</span>
+      </div>
+      <select class="hero-class-select" onchange="selectHeroClass(${i},this.value)">
+        ${heroClassOptions(hero.classId,i)}
+      </select>
+      ${cls?`
+        <div class="hero-images">
+          ${cls.images.map(src=>`<img class="hero-image" src="${src}" alt="${cls.name}" loading="lazy" onerror="this.style.display='none'">`).join('')}
+        </div>
+        <div class="hero-desc"><strong>Funcao:</strong> ${cls.desc}<br><strong>Especial:</strong> ${cls.special}</div>
+        <div class="hero-stats">
+          <div class="sbox"><div class="slabel">Vida</div><div class="sval hp">${currentHp}/${cls.hp}</div></div>
+          <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${cls.atk}</div><div class="atk-type">${cls.atkType}</div></div>
+          <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${cls.defF}</div></div>
+          <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${cls.defM}</div></div>
+        </div>
+        <div class="hero-actions">
+          <button class="hp-btn damage" onclick="adjustHeroHp(${i},-5)">-5</button>
+          <button class="hp-btn damage" onclick="adjustHeroHp(${i},-1)">-1</button>
+          <button class="hp-btn heal" onclick="adjustHeroHp(${i},1)">+1</button>
+          <button class="hp-btn heal" onclick="adjustHeroHp(${i},5)">+5</button>
+        </div>
+      `:'<div class="hero-empty">Selecione uma classe para mostrar vida, ataque e defesas.</div>'}
+      <button class="hero-toggle" onclick="togglePlayer(${i})">${alive?'Marcar queda':'Reerguer heroi'}</button>
+    </div>`;
+  }).join('');
+}
+
+function syncHeroStatus(){
+  state.playerStatus=state.heroes.map(h=>h.alive!==false);
+  state.playersAlive=state.playerStatus.filter(Boolean).length;
+}
+
+function selectHeroClass(i,classId){
+  ensureHeroes(false);
+  const cls=heroClassById(classId);
+  if(cls && countHeroClass(classId,i)>=2){
+    addLog('Limite atingido: a classe '+cls.name+' ja esta em 2 herois.');
+    renderLives();
+    return;
+  }
+  const prev=state.heroes[i] || {};
+  state.heroes[i]={classId,currentHp:cls?cls.hp:0,alive:cls?prev.alive!==false:true};
+  if(cls && state.heroes[i].currentHp>0)state.heroes[i].alive=true;
+  syncHeroStatus();
+  addLog('Heroi '+(i+1)+' escolheu a classe '+(cls?cls.name:'nenhuma')+'.');
+  syncThreatToRoom(Math.min(state.roomsCleared+1,MAX_ROOMS));
+  renderLives();renderStatus();renderPartyImpact();renderSidebarStatus();
+}
+
+function adjustHeroHp(i,delta){
+  ensureHeroes(false);
+  const hero=state.heroes[i];
+  const cls=heroClassById(hero?.classId);
+  if(!hero || !cls)return;
+  const before=hero.currentHp;
+  hero.currentHp=clamp(hero.currentHp+delta,0,cls.hp);
+  const wasAlive=hero.alive!==false;
+  hero.alive=hero.currentHp>0;
+  if(hero.currentHp!==before)addLog('Heroi '+(i+1)+' ('+cls.name+'): vida '+hero.currentHp+'/'+cls.hp+'.');
+  if(wasAlive && !hero.alive)addLog('Heroi '+(i+1)+' caiu!');
+  if(!wasAlive && hero.alive)addLog('Heroi '+(i+1)+' ressuscitou!');
+  syncHeroStatus();
+  syncThreatToRoom(Math.min(state.roomsCleared+1,MAX_ROOMS));
+  renderLives();renderStatus();renderPartyImpact();renderSidebarStatus();
 }
 
 function togglePlayer(i){
-  state.playerStatus[i]=!state.playerStatus[i];
-  state.playersAlive=state.playerStatus.filter(Boolean).length;
+  ensureHeroes(false);
+  const hero=state.heroes[i];
+  const cls=heroClassById(hero?.classId);
+  hero.alive=!hero.alive;
+  if(hero.alive && cls && hero.currentHp<=0)hero.currentHp=1;
+  if(!hero.alive && cls)hero.currentHp=0;
+  syncHeroStatus();
   if(!state.playerStatus[i])addLog('Heroi '+(i+1)+' caiu!');
   else addLog('Heroi '+(i+1)+' ressuscitou!');
   syncThreatToRoom(Math.min(state.roomsCleared+1,MAX_ROOMS));
