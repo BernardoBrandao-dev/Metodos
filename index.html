@@ -758,32 +758,68 @@ function weightedPick(entries){
   return entries[entries.length-1];
 }
 
-function getLootCount(tier){
-  if(tier==='boss')return rn(2,4);
-  if(tier==='elite')return Math.random()<0.55?2:1;
-  return Math.random()<0.25?2:1;
+function getLootCount(tier,roomNumber){
+  let count=2;
+  if(tier==='boss')count=rn(4,6);
+  else if(tier==='elite')count=rn(3,4);
+  else count=Math.random()<0.45?3:2;
+
+  const roomsLeft=Math.max(1,MAX_ROOMS-(roomNumber || state.roomsCleared+1)+1);
+  const classLeft=countRemainingClassLoot();
+  const requiredClassDrops=Math.ceil(classLeft/roomsLeft);
+  return Math.max(count,requiredClassDrops);
 }
 
 function isRepeatableLoot(item){
   return (item.kind || '').toLowerCase().includes('consumivel');
 }
 
-function rollLoot(tier){
+function isClassLoot(item){
+  return (item.img || '').toLowerCase().includes('itens de classe');
+}
+
+function availableLootItems(){
+  state.usedLoot=state.usedLoot || [];
+  return LOOT_ITEMS.filter(item=>isRepeatableLoot(item) || !state.usedLoot.includes(item.name));
+}
+
+function countRemainingClassLoot(){
+  state.usedLoot=state.usedLoot || [];
+  return LOOT_ITEMS.filter(item=>isClassLoot(item) && !state.usedLoot.includes(item.name)).length;
+}
+
+function pickLootFromPool(pool,used){
+  if(pool.length===0)return null;
+  const item=ri(pool);
+  used.add(item.name);
+  if(!isRepeatableLoot(item) && !state.usedLoot.includes(item.name))state.usedLoot.push(item.name);
+  return item;
+}
+
+function rollLoot(tier,roomNumber){
   const drops=[];
   const used=new Set();
   state.usedLoot=state.usedLoot || [];
-  const count=getLootCount(tier);
+  const count=getLootCount(tier,roomNumber);
   const weights=LOOT_RARITY_WEIGHTS[tier] || LOOT_RARITY_WEIGHTS.minion;
+
+  const roomsLeft=Math.max(1,MAX_ROOMS-(roomNumber || state.roomsCleared+1)+1);
+  const classDropsNeeded=Math.min(count,Math.ceil(countRemainingClassLoot()/roomsLeft));
+  for(let i=0;i<classDropsNeeded;i++){
+    const classPool=availableLootItems().filter(item=>isClassLoot(item) && !used.has(item.name));
+    const item=pickLootFromPool(classPool,used);
+    if(item)drops.push({...item,id:drops.length});
+  }
+
   for(let i=0;i<count;i++){
+    if(drops.length>=count)break;
     const rarity=weightedPick(weights).rarity;
-    let pool=LOOT_ITEMS.filter(item=>item.rarity===rarity && !used.has(item.name) && (isRepeatableLoot(item) || !state.usedLoot.includes(item.name)));
-    if(pool.length===0)pool=LOOT_ITEMS.filter(item=>!used.has(item.name) && (isRepeatableLoot(item) || !state.usedLoot.includes(item.name)));
+    let pool=availableLootItems().filter(item=>item.rarity===rarity && !used.has(item.name));
+    if(pool.length===0)pool=availableLootItems().filter(item=>!used.has(item.name));
     if(pool.length===0)pool=LOOT_ITEMS.filter(item=>isRepeatableLoot(item) && !used.has(item.name));
     if(pool.length===0)pool=LOOT_ITEMS;
-    const item=ri(pool);
-    used.add(item.name);
-    if(!isRepeatableLoot(item) && !state.usedLoot.includes(item.name))state.usedLoot.push(item.name);
-    drops.push({...item,id:i});
+    const item=pickLootFromPool(pool,used);
+    if(item)drops.push({...item,id:drops.length});
   }
   return drops;
 }
@@ -1538,7 +1574,7 @@ function applyRoomClearEffects(){
 function finishCurrentRoom(silent) {
   if(state.roomsCleared>=MAX_ROOMS)return;
   const lootTier=state.lastMonsterTier;
-  const drops=rollLoot(lootTier);
+  const drops=rollLoot(lootTier,state.roomsCleared+1);
   applyRoomClearEffects();
   state.currentLoot=drops;
   state.roomsCleared++;
