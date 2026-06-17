@@ -847,17 +847,18 @@ function getScaleParams(players,alive,rooms,threat){
   const roomStage=nextRoom>=12?5:nextRoom>=10?4:nextRoom>=8?3:nextRoom>=6?2:nextRoom>=3?1:0;
   const earlyBase=nextRoom<=2?1:Math.max(1,Math.ceil(activeHeroes/2));
   const maxCap=activeHeroes===1?4:activeHeroes*3;
-  const softCap=nextRoom<=2?Math.min(2,activeHeroes):nextRoom<=4?Math.max(2,activeHeroes):maxCap;
-  const adjBase=Math.min(softCap,earlyBase+Math.floor((roomStage*activeHeroes)/6));
-  const adjMax=Math.max(adjBase,Math.min(softCap,earlyBase+Math.ceil(activeHeroes/2)+Math.floor((roomStage*activeHeroes)/4)));
+  const softCap=nextRoom===1?Math.min(2,activeHeroes):nextRoom<=4?Math.max(3,activeHeroes+1):maxCap;
+  const adjBase=Math.min(softCap,earlyBase+Math.floor((roomStage*activeHeroes)/5)+(nextRoom>=8?1:0));
+  const adjMax=Math.max(adjBase,Math.min(softCap,earlyBase+Math.ceil(activeHeroes/2)+Math.floor((roomStage*activeHeroes)/3)+(nextRoom>=6?1:0)));
   const statMult=1;
   let minionCh;
-  if(nextRoom<=2)minionCh=100;
-  else if(nextRoom<=4)minionCh=90;
-  else if(nextRoom<=6)minionCh=75;
-  else if(nextRoom<=8)minionCh=55;
-  else if(nextRoom<=10)minionCh=35;
-  else minionCh=12;
+  if(nextRoom===1)minionCh=100;
+  else if(nextRoom<=3)minionCh=90;
+  else if(nextRoom<=5)minionCh=75;
+  else if(nextRoom<=7)minionCh=60;
+  else if(nextRoom<=9)minionCh=40;
+  else if(nextRoom<=10)minionCh=28;
+  else minionCh=10;
   return{baseQty:adjBase,adjMax,statMult,minionCh};
 }
 function scaleStat(b,m){return Math.round(b*m);}
@@ -1200,7 +1201,8 @@ function roomStatDelta(entity,stat,side,context){
 }
 
 function adjustedMonsterStat(monster,stat){
-  return roomBaseStat(monster,stat,'master') + roomStatDelta(monster,stat,'monster','master');
+  ensureMonsterBuffs(monster);
+  return roomBaseStat(monster,stat,'master') + roomStatDelta(monster,stat,'monster','master') + monster.buffs[stat];
 }
 
 function adjustedHeroStat(cls,stat,context){
@@ -1554,6 +1556,33 @@ function adjustMonsterHp(id,delta){
   updateRevealButton();
 }
 
+function ensureMonsterBuffs(monster){
+  if(!monster.buffs)monster.buffs={atk:0,defF:0,defM:0};
+  return monster.buffs;
+}
+
+function adjustMonsterBuff(id,stat,delta){
+  const monster=state.currentMonsters.find(m=>m.id===id);
+  if(!monster || monster.isCard)return;
+  const buffs=ensureMonsterBuffs(monster);
+  if(buffs[stat]===undefined)return;
+  buffs[stat]=clamp(buffs[stat]+delta,-9,9);
+  addLog(`${monster.name}: ${stat.toUpperCase()} ${buffs[stat]>=0?'+':''}${buffs[stat]}.`);
+
+  const el=document.getElementById('monster-area');
+  if(el)el.innerHTML=renderMonstersHTML();
+}
+
+function resetMonsterBuffs(id){
+  const monster=state.currentMonsters.find(m=>m.id===id);
+  if(!monster || monster.isCard)return;
+  monster.buffs={atk:0,defF:0,defM:0};
+  addLog(`${monster.name}: buffs e debuffs zerados.`);
+
+  const el=document.getElementById('monster-area');
+  if(el)el.innerHTML=renderMonstersHTML();
+}
+
 function applyRoomClearEffects(){
   if(currentRoomEffect('master')!=='lastBreath')return;
   ensureHeroes(false);
@@ -1639,6 +1668,7 @@ function makePhysicalCard(m,idx,total){
 
 function makeMonsterCard(m,idx,total,extra){
   extra=extra||'';
+  const buffs=ensureMonsterBuffs(m);
   const tierCls={minion:'t-minion',elite:'t-elite',boss:'t-boss'}[m.tier];
   const tierLabel={minion:'Lacaio',elite:'Elite',boss:'Chefe'}[m.tier];
   const num=total>1?'<div class="monster-num">MONSTRO '+idx+'/'+total+'</div>':'';
@@ -1676,7 +1706,25 @@ function makeMonsterCard(m,idx,total,extra){
       <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},1)">+1 PV</button>
       <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},5)">+5 PV</button>
     </div>
+    <div class="setup-label">Buffs / Debuffs</div>
+    <div class="buff-grid">
+      ${monsterBuffBox(m.id,'atk','ATQ',buffs.atk)}
+      ${monsterBuffBox(m.id,'defF','DEF F',buffs.defF)}
+      ${monsterBuffBox(m.id,'defM','DEF M',buffs.defM)}
+    </div>
+    <button class="hero-toggle" onclick="resetMonsterBuffs(${m.id})">Zerar buffs</button>
     ${roomEffectNote(m,'monster')}
+  </div>`;
+}
+
+function monsterBuffBox(id,stat,label,value){
+  return `<div class="buff-box">
+    <div class="slabel">${label}</div>
+    <div class="sval ${stat==='atk'?'atk':'def'}">${value>=0?'+':''}${value}</div>
+    <div class="buff-controls">
+      <button class="hp-btn damage" onclick="adjustMonsterBuff(${id},'${stat}',-1)">-1</button>
+      <button class="hp-btn heal" onclick="adjustMonsterBuff(${id},'${stat}',1)">+1</button>
+    </div>
   </div>`;
 }
 
