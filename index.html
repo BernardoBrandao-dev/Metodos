@@ -850,14 +850,13 @@ function renderLootHTML(drops,roomNumber,tier){
 function getScaleParams(players,alive,rooms,threat){
   const activeHeroes=Math.max(1,alive);
   const nextRoom=Math.min(rooms+1,MAX_ROOMS);
-  const roomProgress=(nextRoom-1)/(MAX_ROOMS-1);
   const roomStage=nextRoom>=12?5:nextRoom>=10?4:nextRoom>=8?3:nextRoom>=6?2:nextRoom>=3?1:0;
   const earlyBase=nextRoom<=2?1:Math.max(1,Math.ceil(activeHeroes/2));
   const maxCap=activeHeroes===1?4:activeHeroes*3;
   const softCap=nextRoom<=2?Math.min(2,activeHeroes):nextRoom<=4?Math.max(2,activeHeroes):maxCap;
   const adjBase=Math.min(softCap,earlyBase+Math.floor((roomStage*activeHeroes)/6));
   const adjMax=Math.max(adjBase,Math.min(softCap,earlyBase+Math.ceil(activeHeroes/2)+Math.floor((roomStage*activeHeroes)/4)));
-  const statMult=clamp(0.78+roomProgress*0.34+(activeHeroes<=2?0.04:0),0.78,1.12);
+  const statMult=1;
   let minionCh;
   if(nextRoom<=2)minionCh=100;
   else if(nextRoom<=4)minionCh=90;
