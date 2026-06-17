@@ -1547,12 +1547,31 @@ function toggleMonsterDead(id) {
   const monster = state.currentMonsters.find(m => m.id === id);
   if (monster) {
     monster.dead = !monster.dead;
+    if(monster.dead)monster.currentHp=0;
+    else if(!monster.currentHp)monster.currentHp=1;
     addLog(`${monster.name} foi ${monster.dead ? 'derrotado ☠' : 'revivido ✓'}.`);
     
     const el = document.getElementById('monster-area');
     if (el) el.innerHTML = renderMonstersHTML();
     updateRevealButton();
   }
+}
+
+function adjustMonsterHp(id,delta){
+  const monster=state.currentMonsters.find(m=>m.id===id);
+  if(!monster || monster.isCard)return;
+  const maxHp=monster.hp || 0;
+  const before=monster.currentHp ?? maxHp;
+  monster.currentHp=clamp(before+delta,0,maxHp);
+  const wasDead=monster.dead;
+  monster.dead=monster.currentHp<=0;
+  if(monster.currentHp!==before)addLog(`${monster.name}: PV ${monster.currentHp}/${maxHp}.`);
+  if(!wasDead && monster.dead)addLog(`${monster.name} foi derrotado.`);
+  if(wasDead && !monster.dead)addLog(`${monster.name} voltou ao combate.`);
+
+  const el=document.getElementById('monster-area');
+  if(el)el.innerHTML=renderMonstersHTML();
+  updateRevealButton();
 }
 
 function applyRoomClearEffects(){
@@ -1646,6 +1665,7 @@ function makeMonsterCard(m,idx,total,extra){
   const atk=adjustedMonsterStat(m,'atk');
   const defF=adjustedMonsterStat(m,'defF');
   const defM=adjustedMonsterStat(m,'defM');
+  const currentHp=clamp(m.currentHp ?? m.hp,0,m.hp);
   
   const deadStyle = m.dead ? 'opacity: 0.35; filter: grayscale(50%); border-color: #333;' : '';
   const deadText = m.dead ? 'text-decoration: line-through; color: var(--mist-dim);' : '';
@@ -1665,10 +1685,16 @@ function makeMonsterCard(m,idx,total,extra){
     </div>
     ${cardImage(m,'monster-image')}
     <div class="mstats">
-      <div class="sbox"><div class="slabel">PV</div><div class="sval hp">${m.hp}</div></div>
+      <div class="sbox"><div class="slabel">PV</div><div class="sval hp">${currentHp}/${m.hp}</div></div>
       <div class="sbox"><div class="slabel">Ataque</div><div class="sval atk">${atk}</div><div class="atk-type">${m.atkType || ''}</div></div>
       <div class="sbox"><div class="slabel">DEF F</div><div class="sval def">${defF}</div></div>
       <div class="sbox"><div class="slabel">DEF M</div><div class="sval def">${defM}</div></div>
+    </div>
+    <div class="hp-controls">
+      <button class="hp-btn damage" onclick="adjustMonsterHp(${m.id},-5)">-5 PV</button>
+      <button class="hp-btn damage" onclick="adjustMonsterHp(${m.id},-1)">-1 PV</button>
+      <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},1)">+1 PV</button>
+      <button class="hp-btn heal" onclick="adjustMonsterHp(${m.id},5)">+5 PV</button>
     </div>
     ${roomEffectNote(m,'monster')}
   </div>`;
